@@ -87,6 +87,7 @@
   (cond (fn-spec? typ) (type->input (fn-spec-coerce typ))
         (#{:double :int} typ) "number"
         :else "text"))
+
 (defn type-coerce [typ value]
   (cond
     (= :string typ) value
@@ -107,17 +108,16 @@
     (fn [schema]
       [:div
        [:div#event-form
-        [:p (prn-str @event)]
         [:form {:on-submit #(.preventDefault %)}
          (doall (for [[nm typ] (rest (m/form schema))]
                   [:div
-                   [:label (str (name nm) " (" (type-display typ) "): ")]
+                   [:label {:for nm} (str (name nm) " (" (type-display typ) "): ")]
                    [:input {:type (type->input typ)
+                            :id nm
                             :step 0.01
                             :value (get @event nm)
-                            :on-change #(swap! event assoc nm (type-coerce typ (-> % .-target .-value)))}]]))
-         [:button "See Transaction"]]]
-       [:p (if (m/validate schema @event) (map map->htmltable (share-xform @event)) "not valid")]])))
+                            :on-change #(swap! event assoc nm (type-coerce typ (-> % .-target .-value)))}]]))]
+        [:p (if (m/validate schema @event) (map map->htmltable (share-xform @event)) "not valid")]]])))
 
 (defn transaction-display [je])
 

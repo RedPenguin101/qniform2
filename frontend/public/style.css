@@ -1,3 +1,21 @@
+ /* Event Form */
+ form {
+   display: table;
+   margin: 10px;
+ }
+
+ form>div {
+   display: table-row;
+ }
+
+ label {
+   display: table-cell;
+ }
+
+ input {
+   display: table-cell;
+ }
+
  /* Dropdown Button */
  .dropbtn {
    background-color: light-grey;
