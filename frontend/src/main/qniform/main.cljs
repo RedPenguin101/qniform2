@@ -60,6 +60,11 @@
 (share-xform {:event-id "hello"
               :shares 123
               :price-per-share 12.21})
+(comment
+  (def dummy-si-event {:event-id "hello"
+                       :shares 123
+                       :price-per-share 12.21})
+  (share-xform dummy-si-event))
 
 (defn rule-dropdown []
   (fn []
@@ -77,8 +82,6 @@
     (keyword? typ) (name typ)
     (and (vector? typ) (= :fn (first typ)))
     (:display (second typ))))
-
-(m/form share-issue-event)
 
 (defn fn-spec? [typ] (and (vector? typ) (= :fn (first typ))))
 (defn fn-spec-coerce [typ] (:coercion (second typ)))
@@ -107,6 +110,7 @@
   (let [event (r/atom {:event-id "hello" :shares 12 :price-per-share 12.34})]
     (fn [schema]
       [:div
+       [:h2 "Share Issuance Event"]
        [:div#event-form
         [:form {:on-submit #(.preventDefault %)}
          (doall (for [[nm typ] (rest (m/form schema))]
