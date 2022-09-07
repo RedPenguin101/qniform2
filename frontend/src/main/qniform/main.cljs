@@ -4,6 +4,8 @@
             [malli.core :as m]
             [meander.epsilon :as e]))
 
+(def app-state (r/atom {:dropdown-selected :share-issue}))
+
 (defn ccy-amnt? [num]
   (and (number? num)
        (= num (/ (Math/round (* 100 num)) 100))))
@@ -21,26 +23,6 @@
              [:shares :int]
              [:price-per-share money]
              [:comment :string]]))
-
-(m/form share-issue-event)
-
-(m/validate share-issue-event
-            {:event-id "hello"
-             :shares 123
-             :price-per-share 12.21})
-
-(def journal-entry
-  (m/schema [:map
-             [:entry-id :string]
-             [:event-id :string]
-             [:transaction-id :string]
-             [:knowledge-datetime :string]
-             [:event-date :string]
-             [:account :string]
-             [:dr-cr :string]
-             [:currency :string]
-             [:local-amount money]
-             [:book-amount money]]))
 
 (defn share-xform [event]
   (e/match {:event event}
@@ -60,6 +42,52 @@
                         :currency "USD"
                         :local-amount (round-2dp (* ?price-per-share ?shares))}]}))
 
+(def invoice-payable-event
+  (m/schema [:map
+             [:event-id :string]
+             [:payee :string]
+             [:amount money]
+             [:comment :string]]))
+
+(defn invoice-xform [event]
+  (e/match {:event event}
+    {:event {:event-id ?event-id
+             :payee ?payee
+             :amount ?amount
+             :comment ?comment}}
+    {:comment ?comment
+     :journal-entries [{:event-id ?event-id
+                        :dr-cr :credit
+                        :account :invoices-payable
+                        :currency "USD"
+                        :local-amount ?amount}
+                       {:event-id ?event-id
+                        :dr-cr :debit
+                        :account :expenses
+                        :currency "USD"
+                        :local-amount ?amount}]}))
+
+(def rules {:share-issue {:name "Share Issuance"
+                          :schema share-issue-event
+                          :xform share-xform}
+            :invoice-payable {:name "Invoice payable"
+                              :schema invoice-payable-event
+                              :xform invoice-xform}})
+
+(def journal-entry
+  (m/schema [:map
+             [:entry-id :string]
+             [:event-id :string]
+             [:transaction-id :string]
+             [:knowledge-datetime :string]
+             [:event-date :string]
+             [:account :string]
+             [:dr-cr :string]
+             [:currency :string]
+             [:local-amount money]
+             [:book-amount money]]))
+
+
 (comment
   (def dummy-si-event {:event-id "hello"
                        :shares 123
@@ -71,9 +99,9 @@
     [:div.dropdown
      [:button.dropbtn "Select Rule"]
      [:div.dropdown-content
-      [:a "Share Issuance"]
-      [:a "Tmp 1"]
-      [:a "Tmp 2"]]]))
+      (for [[k v] rules]
+        [:a {:on-click #(swap! app-state assoc :dropdown-selected k)}
+         (:name v)])]]))
 
 (defn type-display [typ]
   (cond
@@ -114,14 +142,14 @@
    [:h3 "Journal Entries"]
    (jes->table (:journal-entries transaction))])
 
-(defn event-form [schema]
+(defn event-form []
   (let [event (r/atom {})]
-    (fn [schema]
+    (fn []
       [:div
-       [:h2 "Share Issuance Event"]
+       [:h2 (get-in rules [(:dropdown-selected @app-state) :name])]
        [:div#event-form
         [:form {:on-submit #(.preventDefault %)}
-         (doall (for [[nm typ] (rest (m/form schema))]
+         (doall (for [[nm typ] (rest (m/form (get-in rules [(:dropdown-selected @app-state) :schema])))]
                   [:div
                    [:label {:for nm} (str (name nm) " (" (type-display typ) "): ")]
                    [:input {:type (type->input typ)
@@ -129,10 +157,11 @@
                             :step 0.01
                             :value (get @event nm)
                             :on-change #(swap! event assoc nm (type-coerce typ (-> % .-target .-value)))}]]))]
-        [:p (if (m/validate schema @event) (transaction-display (share-xform @event)) "not valid")]]])))
+        [:p (if (m/validate (get-in rules [(:dropdown-selected @app-state) :schema]) @event) (transaction-display ((get-in rules [(:dropdown-selected @app-state) :xform]) @event)) "not valid")]]])))
 
 (defn app []
   [:div
+   [:p (pr-str @app-state)]
    [:h1 "Qniform Rule Tester"]
    [rule-dropdown]
    [event-form share-issue-event]])
