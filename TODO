@@ -1,0 +1,25 @@
+The Spec / Rule system and Front end
+  User can enter data in form and (if valid) see journal entries
+    DONE Malli Spec for expense event
+    DONE User can input Event in form driven by Spec
+    DONE If provided data in form is valid spec, will display journal entries
+    DONE Tidy up form and table
+    DONE Add comment field
+    DONE Wrap journal entries in transaction abstraction
+  User can select between two rules
+    DONE Write second spec
+Sale rule
+Loan issuance rule
+Better reporting on Spec fails
+
+What happens when an event comes in that fails the spec test?
+
+
+* The Spec / Rule system, with REPL FE initially, then front end allowing input of events from 'library' of specs, and visibility of xforms (no persistence)
+    * Equity Injection (sourced from Entity System)
+    * Invoice receipt / payment (sourced from Expense system)
+    * Sale (sources from Sales system)
+    * Loan issuance (from IBOR/Investing system)
+* Back end for Transact API, allowing posting of Events and transformation into transactions. Persistence of JEs
+* Front and back end for event rule setup
+* Front end for General Ledger / Trial Balance / Journal Entry detail visibility.
