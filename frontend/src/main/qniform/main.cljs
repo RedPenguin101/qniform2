@@ -157,7 +157,9 @@
                             :step 0.01
                             :value (get @event nm)
                             :on-change #(swap! event assoc nm (type-coerce typ (-> % .-target .-value)))}]]))]
-        [:p (if (m/validate (get-in rules [(:dropdown-selected @app-state) :schema]) @event) (transaction-display ((get-in rules [(:dropdown-selected @app-state) :xform]) @event)) "not valid")]]])))
+        [:p (if (m/validate (get-in rules [(:dropdown-selected @app-state) :schema]) @event)
+              (transaction-display ((get-in rules [(:dropdown-selected @app-state) :xform]) @event))
+              "Event is not valid")]]])))
 
 (defn app []
   [:div
