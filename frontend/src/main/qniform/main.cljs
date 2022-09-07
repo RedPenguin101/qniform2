@@ -32,7 +32,7 @@
         :else "text"))
 
 (defn type-coerce [typ value]
-  (if (keyword? type)
+  (if (keyword? typ)
     (cond (= :string typ) value
           (= :int typ) (if (empty? value) 0 (js/parseInt value))
           (= :double typ) (if (empty? value) 0 (js/parseFloat value)))
