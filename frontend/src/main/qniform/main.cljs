@@ -46,20 +46,17 @@
     {:event {:event-id ?event-id
              :shares ?shares
              :price-per-share ?price-per-share}}
-    [{:event-id ?event-id
-      :dr-cr :credit
-      :account :share-capital
-      :currency "USD"
-      :local-amount (round-2dp (* ?price-per-share ?shares))}
-     {:event-id ?event-id
-      :dr-cr :debit
-      :account :cash
-      :currency "USD"
-      :local-amount (round-2dp (* ?price-per-share ?shares))}]))
+    {:journal-entries [{:event-id ?event-id
+                        :dr-cr :credit
+                        :account :share-capital
+                        :currency "USD"
+                        :local-amount (round-2dp (* ?price-per-share ?shares))}
+                       {:event-id ?event-id
+                        :dr-cr :debit
+                        :account :cash
+                        :currency "USD"
+                        :local-amount (round-2dp (* ?price-per-share ?shares))}]}))
 
-(share-xform {:event-id "hello"
-              :shares 123
-              :price-per-share 12.21})
 (comment
   (def dummy-si-event {:event-id "hello"
                        :shares 123
@@ -100,11 +97,18 @@
 
     :else "COERCE FAIL"))
 
-(defn map->htmltable [m]
+(defn jes->table [jes]
   [:table
-   [:th [:td "key"] [:td "value"]]
-   (for [[k v] m]
-     [:tr [:td k] [:td v]])])
+   [:tr
+    (for [header (keys (first jes))] [:th header])]
+   (for [row (map vals jes)]
+     [:tr (for [v row] [:td v])])])
+
+(defn transaction-display [transaction]
+  [:div
+   [:h2 "Transaction"]
+   [:h3 "Journal Entries"]
+   (jes->table (:journal-entries transaction))])
 
 (defn event-form [schema]
   (let [event (r/atom {:event-id "hello" :shares 12 :price-per-share 12.34})]
@@ -121,9 +125,7 @@
                             :step 0.01
                             :value (get @event nm)
                             :on-change #(swap! event assoc nm (type-coerce typ (-> % .-target .-value)))}]]))]
-        [:p (if (m/validate schema @event) (map map->htmltable (share-xform @event)) "not valid")]]])))
-
-(defn transaction-display [je])
+        [:p (if (m/validate schema @event) (transaction-display (share-xform @event)) "not valid")]]])))
 
 (defn app []
   [:div

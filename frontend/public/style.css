@@ -16,6 +16,17 @@
    display: table-cell;
  }
 
+ /* Transaction Table */
+ table {
+   border-collapse: collapse;
+ }
+
+ td,
+ th {
+   padding-right: 10px;
+   border: 1px solid lightgray;
+ }
+
  /* Dropdown Button */
  .dropbtn {
    background-color: light-grey;
