@@ -26,8 +26,8 @@
 (defn fn-spec? [typ] (and (vector? typ) (= :fn (first typ))))
 (defn fn-spec-coerce [typ] (:coercion (second typ)))
 
-(defn type->input [typ]
-  (cond (fn-spec? typ) (type->input (fn-spec-coerce typ))
+(defn type->html-input [typ]
+  (cond (fn-spec? typ) (recur (fn-spec-coerce typ))
         (#{:double :int} typ) "number"
         :else "text"))
 
@@ -65,7 +65,7 @@
          (doall (for [[nm typ] (rest (m/form (get-schema rules @selected-rule)))]
                   [:div
                    [:label {:for nm} (str (name nm) " (" (type-display typ) "): ")]
-                   [:input {:type (type->input typ)
+                   [:input {:type (type->html-input typ)
                             :id nm
                             :step 0.01
                             :value (get @event nm)
