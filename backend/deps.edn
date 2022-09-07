@@ -1,6 +1,9 @@
-{:deps {ring/ring            {:mvn/version "1.9.5"}
-        org.clojure/clojure  {:mvn/version "1.11.1"}
+{:deps {org.clojure/clojure  {:mvn/version "1.11.1"}
+        ring/ring            {:mvn/version "1.9.5"}
         ring/ring-defaults   {:mvn/version "0.3.3"}
+        compojure/compojure  {:mvn/version "1.7.0"}
         meander/epsilon      {:mvn/version "0.0.650"}
         metosin/malli        {:mvn/version "0.8.9"}}
- :paths ["src" "resources"]}
+ :paths ["src" "resources"]
+ :aliases {:dev {:extra-deps {http-kit/http-kit {:mvn/version "2.6.0"}}
+                 :extra-paths ["dev"]}}}
