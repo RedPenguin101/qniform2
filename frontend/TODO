@@ -3,8 +3,8 @@ The Spec / Rule system and Front end
     DONE Malli Spec for expense event
     DONE User can input Event in form driven by Spec
     DONE If provided data in form is valid spec, will display journal entries
-    Tidy up form and table
-    Add comment field
-    Wrap journal entries in transaction abstraction
+    DONE Tidy up form and table
+    DONE Add comment field
+    DONE Wrap journal entries in transaction abstraction
   User can select between two rules
     Write second spec

@@ -19,7 +19,8 @@
   (m/schema [:map
              [:event-id :string]
              [:shares :int]
-             [:price-per-share money]]))
+             [:price-per-share money]
+             [:comment :string]]))
 
 (m/form share-issue-event)
 
@@ -45,8 +46,10 @@
   (e/match {:event event}
     {:event {:event-id ?event-id
              :shares ?shares
-             :price-per-share ?price-per-share}}
-    {:journal-entries [{:event-id ?event-id
+             :price-per-share ?price-per-share
+             :comment ?comment}}
+    {:comment ?comment
+     :journal-entries [{:event-id ?event-id
                         :dr-cr :credit
                         :account :share-capital
                         :currency "USD"
@@ -107,11 +110,12 @@
 (defn transaction-display [transaction]
   [:div
    [:h2 "Transaction"]
+   [:p [:strong "Comment: "] (:comment transaction)]
    [:h3 "Journal Entries"]
    (jes->table (:journal-entries transaction))])
 
 (defn event-form [schema]
-  (let [event (r/atom {:event-id "hello" :shares 12 :price-per-share 12.34})]
+  (let [event (r/atom {})]
     (fn [schema]
       [:div
        [:h2 "Share Issuance Event"]
