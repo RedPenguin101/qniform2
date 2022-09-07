@@ -63,9 +63,9 @@
                         :currency "USD"
                         :local-amount ?amount}]}))
 
-(def rules {:share-issue {:name "Share Issuance"
-                          :schema share-issue-event
-                          :xform share-xform}
+(def rules {:share-issue     {:name "Share Issuance"
+                              :schema share-issue-event
+                              :xform share-xform}
             :invoice-payable {:name "Invoice payable"
                               :schema invoice-payable-event
                               :xform invoice-xform}})

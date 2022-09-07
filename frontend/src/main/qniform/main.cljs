@@ -59,6 +59,7 @@
   (let [event (r/atom {})]
     (fn []
       [:div
+       [:p (prn-str @event)]
        [:h2 (get-in rules [@selected-rule :name])]
        [:div#event-form
         [:form {:on-submit #(.preventDefault %)}
