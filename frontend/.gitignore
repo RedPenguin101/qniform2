@@ -1,0 +1,7 @@
+.calva
+.clj-kondo
+.lsp
+.portal
+.shadow-cljs
+node_modules/
+public/compiledjs/
