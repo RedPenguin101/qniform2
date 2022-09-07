@@ -12,8 +12,11 @@ Sale rule
 Loan issuance rule
 Better reporting on Spec fails
 
-What happens when an event comes in that fails the spec test?
+Backend for event API
+Serve up specs/xforms to frontend.
+General Ledger Booking.
 
+What happens when an event comes in that fails the spec test?
 
 * The Spec / Rule system, with REPL FE initially, then front end allowing input of events from 'library' of specs, and visibility of xforms (no persistence)
     * Equity Injection (sourced from Entity System)
