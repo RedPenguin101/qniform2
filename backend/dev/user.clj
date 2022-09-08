@@ -49,3 +49,6 @@
 
 (read-string (:body @(http/post "http://localhost:3000/api/event"
                                 {:body (json/write-str invoice-bad-schema)})))
+
+(read-string (:body @(http/post "http://localhost:3000/api/event"
+                                {:body (json/write-str {:type :bad-event})})))

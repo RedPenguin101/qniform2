@@ -12,8 +12,8 @@ _DONE_ The Spec / Rule system and Front end
 
 Backend for event API: 
   _DONE_ Return transaction when event passed in
-  Handle schema spec not met
-  Handle event type not found
+  _DONE_ Handle schema spec not met
+  _DONE_ Handle event type not found
   Change return body to JSON
   Move event handling to app namespace
 

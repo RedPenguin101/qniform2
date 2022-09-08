@@ -20,10 +20,16 @@
 
 (defn validate-event [event rules]
   (let [schema (get-schema rules (:type event))]
-    (if
-     (m/validate schema event)
-      {:valid true :event event}
-      {:valid false :explain (m/explain schema event)})))
+    (cond
+      (not schema)
+      {:valid false
+       :error (str "Event Type " (:type event) " not recongnized")
+       :recognized-events (keys rules)}
+
+      (m/validate schema event) {:valid true :event event}
+      :else {:valid false
+             :error "Event Schema is not valid"
+             :explain (get (m/explain schema event) :errors)})))
 
 (defn event-parser [json-event]
   (-> json-event
@@ -40,9 +46,7 @@
     (if (:valid v)
       (event->transaction event)
       {:status 400
-       :body (pr-str {:error "Event Schema is not valid"
-                      :explain (get-in v [:explain :errors])
-                      :event event})})))
+       :body (pr-str (merge {:event event} (dissoc v :valid)))})))
 
 (defn event-response [request]
   (merge
