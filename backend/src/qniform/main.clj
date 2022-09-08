@@ -5,7 +5,8 @@
             [compojure.core :refer [defroutes GET POST]]
             [compojure.route :as route]
             [clojure.data.json :as json]
-            [qniform.events :refer [validate-event event->transaction]]))
+            [qniform.events :refer [validate-event event->transaction]]
+            [qniform.rules :refer [rules]]))
 
 (defonce server (atom nil))
 @server
@@ -37,11 +38,17 @@
         event-parser
         event-handler)))
 
+(defn rule-request [_]
+  {:status 200
+   :header {"Content-Type" "application/edn"}
+   :body (pr-str (update-vals rules #(dissoc % :xform)))})
+
 (defroutes routes
   (GET "/" [] "<h1>Qniform</h1>")
   (GET "/readback" [] readback)
   (POST "/readback" [] readback)
   (POST "/api/event" [] event-response)
+  (GET "/api/rules" [] rule-request)
   (route/not-found "<h1>Page not found</h1>"))
 
 (defn start []

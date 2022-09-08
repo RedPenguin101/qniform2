@@ -18,6 +18,8 @@ Backend for event API:
   _DONE_ Move event handling to app namespace
 
 Serve up specs/xforms to frontend.
+  _DONE_ Route for sending specs
+  Use Frontend to load specs and display to users
 
 New Rules
   Sale rule

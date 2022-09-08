@@ -2,7 +2,8 @@
   (:require [qniform.main :as app]
             [org.httpkit.client :as http]
             [clojure.data.json :as json]
-            [clojure.test :refer [deftest is are]]))
+            [clojure.test :refer [deftest is]]
+            [malli.core :as m]))
 
 (comment
   (app/start)
@@ -31,6 +32,13 @@
    :amount "not a number"
    ;; missing payee
    :comment "Test Comment on invoice"})
+
+(def rule-schema
+  (m/schema [:map
+             [:name :string]
+             [:schema [:vector :any]]
+             [:pattern :map]
+             [:target :map]]))
 
 (deftest regression
   (is (= "<h1>Qniform</h1>" (:body @(http/get "http://localhost:3000/"))))
@@ -75,7 +83,9 @@
   (is (= ((json/read-str (:body @(http/post "http://localhost:3000/api/event"
                                             {:body (json/write-str {:type :bad-event})})))
           "error")
-         "Event Type :bad-event not recongnized")))
+         "Event Type :bad-event not recongnized"))
+
+  (is (every? #(m/validate rule-schema %) (vals (read-string (slurp (:body @(http/get "http://localhost:3000/api/rules"))))))))
 
 (comment
   @(http/get "http://localhost:3000/readback"
