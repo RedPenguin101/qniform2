@@ -4,11 +4,8 @@
             [ring.util.request :as rreq]
             [compojure.core :refer [defroutes GET POST]]
             [compojure.route :as route]
-            [qniform.main :as app]
-            [clojure.pprint :refer [pprint]]
             [clojure.data.json :as json]
-            [malli.core :as m]
-            [qniform.rules :refer [rules get-schema get-xform]]))
+            [qniform.events :refer [validate-event event->transaction]]))
 
 (defonce server (atom nil))
 @server
@@ -16,20 +13,7 @@
 (defn readback [request]
   {:status  200
    :headers {"Content-Type" "text"}
-   :body (with-out-str (pprint request))})
-
-(defn validate-event [event rules]
-  (let [schema (get-schema rules (:type event))]
-    (cond
-      (not schema)
-      {:valid false
-       :error (str "Event Type " (:type event) " not recongnized")
-       :recognized-events (keys rules)}
-
-      (m/validate schema event) {:valid true :event event}
-      :else {:valid false
-             :error "Event Schema is not valid"
-             :explain (map #(update % :schema m/form) (:errors (m/explain schema event)))})))
+   :body request})
 
 (defn event-parser [json-event]
   (-> json-event
@@ -37,14 +21,11 @@
       (update :originated keyword)
       (update :type keyword)))
 
-(defn event->transaction [event]
-  {:status 200
-   :body (json/write-str ((get-xform rules (:type event)) event))})
-
 (defn event-handler [event]
-  (let [v (validate-event event rules)]
+  (let [v (validate-event event)]
     (if (:valid v)
-      (event->transaction event)
+      {:status 200
+       :body (json/write-str (event->transaction event))}
       {:status 400
        :body (json/write-str (merge {:event event} (dissoc v :valid)))})))
 
