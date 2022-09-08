@@ -19,29 +19,44 @@
    :body (with-out-str (pprint request))})
 
 (defn validate-event [event rules]
-  (if (m/validate (get-schema rules (:type event))
-                  event)
-    ((get-xform rules (:type event)) event)
-    (throw (ex-info "Event is invalid" {:explain (m/explain (get-schema rules (:type event))
-                                                            event)}))))
+  (let [schema (get-schema rules (:type event))]
+    (if
+     (m/validate schema event)
+      {:valid true :event event}
+      {:valid false :explain (m/explain schema event)})))
 
 (defn event-parser [json-event]
   (-> json-event
       (json/read-str :key-fn keyword)
       (update :originated keyword)
-      (update :type keyword)
-      (validate-event rules)))
+      (update :type keyword)))
 
-(defn event-handler [request]
-  {:status  200
-   :headers {"Content-Type" "text"}
-   :body (pr-str (event-parser (rreq/body-string request)))})
+(defn event->transaction [event]
+  {:status 200
+   :body (pr-str ((get-xform rules (:type event)) event))})
+
+(defn event-handler [event]
+  (let [v (validate-event event rules)]
+    (if (:valid v)
+      (event->transaction event)
+      {:status 400
+       :body (pr-str {:error "Event Schema is not valid"
+                      :explain (get-in v [:explain :errors])
+                      :event event})})))
+
+(defn event-response [request]
+  (merge
+   {:headers {"Content-Type" "text"}}
+   (->> request
+        rreq/body-string
+        event-parser
+        event-handler)))
 
 (defroutes routes
   (GET "/" [] "<h1>Qniform</h1>")
   (GET "/readback" [] readback)
   (POST "/readback" [] readback)
-  (POST "/api/event" [] event-handler)
+  (POST "/api/event" [] event-response)
   (route/not-found "<h1>Page not found</h1>"))
 
 (defn start []

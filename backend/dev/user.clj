@@ -8,6 +8,7 @@
   (app/stop))
 
 @(http/get "http://localhost:3000/")
+@(http/get "http://localhost:3000/bad-route")
 @(http/get "http://localhost:3000/readback?hello=world")
 @(http/get "http://localhost:3000/readback"
            {:query-params {:hello "world"}})
@@ -37,3 +38,14 @@
 
 (read-string (:body @(http/post "http://localhost:3000/api/event"
                                 {:body (json/write-str invoice-event)})))
+
+(def invoice-bad-schema
+  {:originated :system-t
+   :id "eb6371ea-9cef-4a32-9b8d-abeb8cf87f20"
+   :type :invoice-payable
+   :amount "not a number"
+   ;; missing payee
+   :comment "Test Comment on invoice"})
+
+(read-string (:body @(http/post "http://localhost:3000/api/event"
+                                {:body (json/write-str invoice-bad-schema)})))
