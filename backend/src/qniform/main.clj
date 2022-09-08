@@ -29,7 +29,7 @@
       (m/validate schema event) {:valid true :event event}
       :else {:valid false
              :error "Event Schema is not valid"
-             :explain (get (m/explain schema event) :errors)})))
+             :explain (map #(update % :schema m/form) (:errors (m/explain schema event)))})))
 
 (defn event-parser [json-event]
   (-> json-event
@@ -39,18 +39,18 @@
 
 (defn event->transaction [event]
   {:status 200
-   :body (pr-str ((get-xform rules (:type event)) event))})
+   :body (json/write-str ((get-xform rules (:type event)) event))})
 
 (defn event-handler [event]
   (let [v (validate-event event rules)]
     (if (:valid v)
       (event->transaction event)
       {:status 400
-       :body (pr-str (merge {:event event} (dissoc v :valid)))})))
+       :body (json/write-str (merge {:event event} (dissoc v :valid)))})))
 
 (defn event-response [request]
   (merge
-   {:headers {"Content-Type" "text"}}
+   {:headers {"Content-Type" "application/json"}}
    (->> request
         rreq/body-string
         event-parser

@@ -14,7 +14,7 @@ Backend for event API:
   _DONE_ Return transaction when event passed in
   _DONE_ Handle schema spec not met
   _DONE_ Handle event type not found
-  Change return body to JSON
+  _DONE_ Change return body to JSON
   Move event handling to app namespace
 
 Serve up specs/xforms to frontend.
