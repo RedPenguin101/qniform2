@@ -12,9 +12,9 @@ Sale rule
 Loan issuance rule
 Better reporting on Spec fails
 
-Backend for event API
+DONE Backend for event API
 Serve up specs/xforms to frontend.
-General Ledger Booking.
+General Ledger Booking / persistence.
 
 What happens when an event comes in that fails the spec test?
 
