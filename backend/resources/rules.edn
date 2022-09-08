@@ -1,0 +1,54 @@
+[{:id :test
+  :name "test"
+  :schema [:map
+           [:a :int]
+           [:b :int]]
+  :pattern {:a ?a
+            :b ?b}
+  :target {:new-a ?a
+           :new-b ?b}}
+ {:id :share-issue
+  :name "Share Issue"
+  :schema [:map
+           [:originated :keyword]
+           [:id :string]
+           [:type :keyword]
+           [:shares :int]
+           [:price-per-share :double]]
+  :pattern {:id ?event-id
+            :shares ?shares
+            :price-per-share ?price-per-share
+            :comment ?comment}
+  :target {:comment ?comment
+           :journal-entries [{:event-id ?event-id
+                              :dr-cr :credit
+                              :account :share-capital
+                              :currency "USD"
+                              :local-amount (round-2dp (* ?price-per-share ?shares))}
+                             {:event-id ?event-id
+                              :dr-cr :debit
+                              :account :cash
+                              :currency "USD"
+                              :local-amount (round-2dp (* ?price-per-share ?shares))}]}}
+ {:id :invoice-payable
+  :name "Invoice Payable"
+  :schema [:map
+           [:id :string]
+           [:payee :string]
+           [:amount :double]
+           [:comment :string]]
+  :pattern {:id ?event-id
+            :payee ?payee
+            :amount ?amount
+            :comment ?comment}
+  :target {:comment ?comment
+           :journal-entries [{:event-id ?event-id
+                              :dr-cr :credit
+                              :account :invoices-payable
+                              :currency "USD"
+                              :local-amount ?amount}
+                             {:event-id ?event-id
+                              :dr-cr :debit
+                              :account :expenses
+                              :currency "USD"
+                              :local-amount ?amount}]}}]

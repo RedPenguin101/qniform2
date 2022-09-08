@@ -1,21 +1,25 @@
-The Spec / Rule system and Front end
-  User can enter data in form and (if valid) see journal entries
+DONE The Spec / Rule system and Front end
+  DONE User can enter data in form and (if valid) see journal entries
     DONE Malli Spec for expense event
     DONE User can input Event in form driven by Spec
     DONE If provided data in form is valid spec, will display journal entries
     DONE Tidy up form and table
     DONE Add comment field
     DONE Wrap journal entries in transaction abstraction
-  User can select between two rules
+  DONE User can select between two rules
     DONE Write second spec
+
+Backend for event API: 
+  Return transaction when event passed in
+  Handle schema spec not met
+  Handle event type not found
+Serve up specs/xforms to frontend.
 Sale rule
 Loan issuance rule
-Better reporting on Spec fails
-
-DONE Backend for event API
-Serve up specs/xforms to frontend.
 General Ledger Booking / persistence.
+Better FE reporting on Spec fails
 
+DESIGN QUESTIONS
 What happens when an event comes in that fails the spec test?
 
 * The Spec / Rule system, with REPL FE initially, then front end allowing input of events from 'library' of specs, and visibility of xforms (no persistence)

@@ -1,83 +1,32 @@
 (ns qniform.rules
-  (:require [meander.epsilon :as e]
-            [malli.core :as m]))
+  (:require [meander.epsilon :as e] ;; required for evaluation
+            [malli.core :as m]
+            [clojure.edn :as edn]))
 
-(defn round-2dp [num]
-  (double (/ (Math/round (* 100 num)) 100)))
+(defn match-fn [pattern target]
+  (list 'fn '[e] (list 'e/match 'e pattern target)))
 
-(defn ccy-amnt? [num]
-  (and (number? num)
-       (= num (/ (Math/round (* 100 num)) 100))))
+(defn new-rule [{:keys [id name schema pattern target]}]
+  {id {:name name
+       :schema (m/schema schema)
+       :pattern pattern
+       :target target
+       :xform (eval (match-fn pattern target))}})
 
-(ccy-amnt? 12.23)
+(def rules (apply merge (map new-rule (edn/read-string (slurp "resources/rules.edn")))))
 
-(def money (m/schema [:fn {:display "Money amount"
-                           :coercion :double}
-                      ccy-amnt?]))
-
-(def share-issue-event
-  (m/schema [:map
-             [:originated :keyword]
-             [:id :string]
-             [:type :keyword]
-             [:shares :int]
-             [:price-per-share :double]]))
-
-(defn share-xform [event]
-  (e/match {:event event}
-    {:event {:id ?event-id
-             :shares ?shares
-             :price-per-share ?price-per-share
-             :comment ?comment}}
-    {:comment ?comment
-     :journal-entries [{:event-id ?event-id
-                        :dr-cr :credit
-                        :account :share-capital
-                        :currency "USD"
-                        :local-amount (round-2dp (* ?price-per-share ?shares))}
-                       {:event-id ?event-id
-                        :dr-cr :debit
-                        :account :cash
-                        :currency "USD"
-                        :local-amount (round-2dp (* ?price-per-share ?shares))}]}))
-
-(def invoice-payable-event
-  (m/schema [:map
-             [:event-id :string]
-             [:payee :string]
-             [:amount money]
-             [:comment :string]]))
-
-(defn invoice-xform [event]
-  (e/match {:event event}
-    {:event {:event-id ?event-id
-             :payee ?payee
-             :amount ?amount
-             :comment ?comment}}
-    {:comment ?comment
-     :journal-entries [{:event-id ?event-id
-                        :dr-cr :credit
-                        :account :invoices-payable
-                        :currency "USD"
-                        :local-amount ?amount}
-                       {:event-id ?event-id
-                        :dr-cr :debit
-                        :account :expenses
-                        :currency "USD"
-                        :local-amount ?amount}]}))
-
-(def rules {:share-issue     {:name "Share Issuance"
-                              :schema share-issue-event
-                              :xform share-xform}
-            :invoice-payable {:name "Invoice payable"
-                              :schema invoice-payable-event
-                              :xform invoice-xform}})
+(defn get-schema [rules id] (get-in rules [id :schema]))
+(defn get-xform [rules id] (get-in rules [id :xform]))
 
 (comment
-  (def dummy-si-event {:event-id "hello"
-                       :shares 123
-                       :price-per-share 12.21})
-  (share-xform dummy-si-event))
+  ((get-xform rules :test) {:a 10 :b 15})
+  ((get-xform rules :share-issue) {:id "hello"
+                                   :shares 123
+                                   :price-per-share 12.21
+                                   :comment "comment"})
+  ((get-xform rules :invoice-payable) {:id "hello"
+                                       :payee "your mum"
+                                       :amount 12.21
+                                       :comment "comment"}))
 
-(defn get-schema [rules name] (get-in rules [name :schema]))
-(defn get-xform [rules name] (get-in rules [name :xform]))
+
