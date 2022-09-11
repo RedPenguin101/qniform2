@@ -7,7 +7,7 @@
     (cond
       (not schema)
       {:valid false
-       :error (str "Event Type " (:type event) " not recongnized")
+       :error (str "Event Type " (:type event) " not recognized")
        :recognized-events (keys rules)}
 
       (m/validate schema event) {:valid true :event event}
