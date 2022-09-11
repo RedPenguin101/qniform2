@@ -24,12 +24,12 @@
                               :dr-cr :credit
                               :account :share-capital
                               :currency "USD"
-                              :local-amount (round-2dp (* ?price-per-share ?shares))}
+                              :local-amount (* ?price-per-share ?shares)}
                              {:event-id ?event-id
                               :dr-cr :debit
                               :account :cash
                               :currency "USD"
-                              :local-amount (round-2dp (* ?price-per-share ?shares))}]}}
+                              :local-amount (* ?price-per-share ?shares)}]}}
  {:id :invoice-payable
   :name "Invoice Payable"
   :schema [:map
