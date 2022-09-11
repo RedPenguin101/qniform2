@@ -20,8 +20,8 @@ _DONE_ Backend for event API:
 Serve up specs/xforms to frontend.
   _DONE_ Route for sending specs
   _DONE_ build for backend.
-  Connect frontend to backend
-  Use Frontend to load specs and display to users
+  _DONE_ Connect frontend to backend
+  Use Frontend to load specs and display to users (or maybe do xforms at backend)
 
 New Rules
   Sale rule

@@ -1,6 +1,7 @@
 {:deps {org.clojure/clojure  {:mvn/version "1.11.1"}
         ring/ring            {:mvn/version "1.9.5"}
         ring/ring-defaults   {:mvn/version "0.3.3"}
+        ring-cors/ring-cors  {:mvn/version "0.1.13"}
         compojure/compojure  {:mvn/version "1.7.0"}
         meander/epsilon      {:mvn/version "0.0.650"}
         metosin/malli        {:mvn/version "0.8.9"}

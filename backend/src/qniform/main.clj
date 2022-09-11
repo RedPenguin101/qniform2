@@ -2,6 +2,7 @@
   (:gen-class)
   (:require [ring.adapter.jetty :as jetty]
             [ring.middleware.defaults :refer [api-defaults wrap-defaults site-defaults]]
+            [ring.middleware.cors :refer [wrap-cors]]
             [ring.util.request :as rreq]
             [compojure.core :refer [defroutes GET POST]]
             [compojure.route :as route]
@@ -51,12 +52,22 @@
   (GET "/api/rules" [] rule-request)
   (route/not-found "<h1>Page not found</h1>"))
 
-(defn start []
+(defn no-cors [routes]
+  (-> routes
+      (wrap-defaults api-defaults)))
+
+(defn cors [routes]
+  (-> routes
+      (wrap-defaults site-defaults)
+      (wrap-cors :access-control-allow-origin [#"http://localhost:9090"]
+                 :access-control-allow-methods [:get :put :post :delete])))
+
+(defn start [wrapper port]
   (when-not @server
     (reset! server
             (jetty/run-jetty
-             (wrap-defaults #'routes api-defaults)
-             {:port 3000 :join? false}))))
+             (wrapper #'routes)
+             {:port port :join? false}))))
 
 (defn stop []
   (when @server
@@ -64,8 +75,8 @@
     (reset! server nil)))
 
 (defn -main []
-  (start))
+  (start cors 3000))
 
 (comment
-  (start)
+  (start cors 3000)
   (stop))

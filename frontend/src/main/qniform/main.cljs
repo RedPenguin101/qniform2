@@ -1,10 +1,13 @@
 (ns qniform.main
   (:require [reagent.core :as r]
+            [clojure.edn :as edn]
             [reagent.dom :as rd]
+            [ajax.core :refer [GET]]
             [malli.core :as m]
             [qniform.rules :refer [rules get-schema get-xform]]))
 
 (def selected-rule (r/atom :share-issue))
+(def rules2 (r/atom nil))
 
 (defn rule-dropdown []
   (fn []
@@ -75,9 +78,21 @@
               (transaction-display ((get-xform rules @selected-rule) @event))
               "Event is not valid")]]])))
 
+(defn get-rules [d]
+  (GET "http://localhost:3000/api/rules"
+    {:handler #(reset! d %)
+     :error-handler (fn [{:keys [status status-text]}]
+                      (js/console.log status status-text))}))
+
+(defn get-print []
+  (get-rules rules2)
+  (fn []
+    [:p (pr-str (:test (edn/read-string @rules2)))]))
+
 (defn app []
   [:div
    [:p (pr-str @selected-rule)]
+   [get-print]
    [:h1 "Qniform Rule Tester"]
    [rule-dropdown]
    [event-form (get-schema rules @selected-rule)]])

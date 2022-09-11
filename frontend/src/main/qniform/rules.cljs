@@ -2,6 +2,22 @@
   (:require [meander.epsilon :as e]
             [malli.core :as m]))
 
+(defn match-fn [pattern target]
+  (list 'fn '[e] (list 'e/match 'e pattern target)))
+
+(defn make-rule [{:keys [name schema pattern target]}]
+  {:name name
+   :schema (m/schema schema)
+   :xform (match-fn pattern target)})
+
+(def t '{:name "test", :schema [:map [:a :int] [:b :int]], :pattern {:a ?a, :b ?b}, :target {:new-a ?a, :new-b ?b}})
+
+(def r (make-rule t))
+
+(m/validate (:schema r) {:a 10 :b 15})
+#_(eval (:xform r)) ;; Doesn't work! Need an alternative way
+#_((:xform r) {:a 10 :b 15})
+
 (defn round-2dp [num]
   (/ (Math/round (* 100 num)) 100))
 

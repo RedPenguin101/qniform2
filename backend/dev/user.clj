@@ -6,7 +6,8 @@
             [malli.core :as m]))
 
 (comment
-  (app/start)
+  (app/start app/no-cors 3000)
+  (app/start app/cors 3000)
   (app/stop))
 
 (def share-event
