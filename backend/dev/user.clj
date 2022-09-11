@@ -93,4 +93,6 @@
 
   @(http/post "http://localhost:3000/readback"
               {:query-params {:hello "world"}
-               :body "body test"}))
+               :body "body test"})
+
+  (read-string (slurp (:body @(http/get "http://localhost:3000/api/rules")))))

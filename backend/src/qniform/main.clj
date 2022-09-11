@@ -1,4 +1,5 @@
 (ns qniform.main
+  (:gen-class)
   (:require [ring.adapter.jetty :as jetty]
             [ring.middleware.defaults :refer [api-defaults wrap-defaults site-defaults]]
             [ring.util.request :as rreq]
@@ -9,12 +10,11 @@
             [qniform.rules :refer [rules]]))
 
 (defonce server (atom nil))
-@server
 
 (defn readback [request]
   {:status  200
    :headers {"Content-Type" "text"}
-   :body request})
+   :body (pr-str request)})
 
 (defn event-parser [json-event]
   (-> json-event
@@ -40,7 +40,7 @@
 
 (defn rule-request [_]
   {:status 200
-   :header {"Content-Type" "application/edn"}
+   :header {"Content-Type" "text"}
    :body (pr-str (update-vals rules #(dissoc % :xform)))})
 
 (defroutes routes
@@ -62,6 +62,9 @@
   (when @server
     (.stop @server)
     (reset! server nil)))
+
+(defn -main []
+  (start))
 
 (comment
   (start)

@@ -10,7 +10,7 @@ _DONE_ The Spec / Rule system and Front end
   _DONE_ User can select between two rules
     _DONE_ Write second spec
 
-Backend for event API: 
+_DONE_ Backend for event API: 
   _DONE_ Return transaction when event passed in
   _DONE_ Handle schema spec not met
   _DONE_ Handle event type not found
@@ -19,11 +19,14 @@ Backend for event API:
 
 Serve up specs/xforms to frontend.
   _DONE_ Route for sending specs
+  _DONE_ build for backend.
+  Connect frontend to backend
   Use Frontend to load specs and display to users
 
 New Rules
   Sale rule
   Loan issuance rule
+
 General Ledger Booking / persistence.
 Better FE reporting on Spec fails
 
