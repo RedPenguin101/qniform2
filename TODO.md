@@ -21,14 +21,26 @@ Serve up specs/xforms to frontend.
   _DONE_ Route for sending specs
   _DONE_ build for backend.
   _DONE_ Connect frontend to backend
-  Use Frontend to load specs and display to users (or maybe do xforms at backend)
+  Use Frontend to load specs and display to users (or maybe do xforms at backend - might need websockets for this)
+
+Backend persistence and operations
+  _DONE_ General Ledger Booking / persistence.
+  _DONE_ Add dates/datetimes to JEs
+  General ledger updating / append-only
 
 New Rules
   Sale rule
   Loan issuance rule
 
-General Ledger Booking / persistence.
 Better FE reporting on Spec fails
+Websockets connections between FE and backend?
+  For validation / transformation in tester
+  For bookings
+Activity generator / Upstream System Simulator
+Month end close
+Payment events and partials
+
+Event driven, no running application.
 
 ## DESIGN QUESTIONS
 What happens when an event comes in that fails the spec test?
