@@ -10,18 +10,21 @@
 ;; setup and helper
 (comment
   "table definitions"
+  (jdbc/execute! ds ["drop table journal_entries"])
   (jdbc/execute! ds ["create table journal_entries (
                       id integer primary key autoincrement,
                       event_id text,
+                      je_type text,
+                      update_of integer,
                       account text,
                       dr_cr text,
                       currency text,
                       local_amount real,
                       effective_date text,
                       knowledge_datetime text)"])
-  (jdbc/execute! ds ["drop table journal_entries"])
 
   (sql/insert! ds :journal_entries {:event_id "test"
+                                    :je_type "new"
                                     :account "test"
                                     :dr_cr "debit"
                                     :currency "USD"
@@ -37,6 +40,8 @@
 
 (def journal-trans
   {:event-id :event_id
+   :je-type :je_type
+   :update-of :update_of
    :dr-cr :dr_cr
    :local-amount :local_amount
    :effective-date :effective_date
@@ -62,6 +67,7 @@
 (comment
   (book-journal-entries! [{:event-id "0b31b2a2-b144-4a9b-85cd-af99175e6a0f",
                            :dr-cr "credit",
+                           :je-type "new"
                            :account "share-capital",
                            :currency "USD",
                            :local-amount 1223.0
@@ -69,10 +75,19 @@
                            :knowledge-datetime "2022-09-18 10:14:46.123"}
                           {:event-id "0b31b2a2-b144-4a9b-85cd-af99175e6a0f",
                            :dr-cr "debit",
+                           :je-type "new"
                            :account "cash",
                            :currency "USD",
                            :local-amount 1223.0
                            :effective-date "2022-09-18"
                            :knowledge-datetime "2022-09-18 10:14:46.123"}])
+
+  (get-journal-entries!)
+  (book-journal-entries! [{:je-type "nullify"
+                           :update-of 4
+                           :knowledge-datetime "2022-09-18 11:14:46.123"}
+                          {:je-type "nullify"
+                           :update-of 5
+                           :knowledge-datetime "2022-09-18 11:14:46.123"}])
 
   (get-journal-entries!))
