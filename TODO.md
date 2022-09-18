@@ -26,12 +26,22 @@ Serve up specs/xforms to frontend.
 Backend persistence and operations
   _DONE_ General Ledger Booking / persistence.
   _DONE_ Add dates/datetimes to JEs
-  General ledger updating / append-only
+  _DONE_ General ledger updating / append-only
+    je-type: new
+    je-type: nullify - used to completely disregard an entry
+    je-type: correct - used to correct an entry
+
+Accounting namespace
+  _DONE_ Proper specs for journal entries
+  _DONE_ booking new/nullify/update JEs
+  _DONE_ aggregating updates
+  _DONE_ trial balance
 
 New Rules
   Sale rule
   Loan issuance rule
 
+Book entries from Frontend
 Better FE reporting on Spec fails
 Websockets connections between FE and backend?
   For validation / transformation in tester
@@ -39,6 +49,7 @@ Websockets connections between FE and backend?
 Activity generator / Upstream System Simulator
 Month end close
 Payment events and partials
+Better COA handling, not strings
 
 Event driven, no running application.
 
