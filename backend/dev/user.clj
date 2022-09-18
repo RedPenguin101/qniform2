@@ -84,7 +84,7 @@
   (is (= ((json/read-str (:body @(http/post "http://localhost:3000/api/event"
                                             {:body (json/write-str {:type :bad-event})})))
           "error")
-         "Event Type :bad-event not recongnized"))
+         "Event Type :bad-event not recognized"))
 
   (is (every? #(m/validate rule-schema %) (vals (read-string (slurp (:body @(http/get "http://localhost:3000/api/rules"))))))))
 
