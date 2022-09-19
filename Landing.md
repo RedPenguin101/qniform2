@@ -9,6 +9,11 @@ Systematic integration with the rest of your software environment is often a poo
 
 Qniform is built from the ground up to directly with your upstream software systems to find out what activity needs accounting for, and using rules that you define, will turn those events into journal entries.
 
+## Is Qniform right for my firm?
+Qniform shines in firms where there are many separate business functions, all using different software from a range of vendors, and all of which are generating activity which needs to be accounted for.
+
+If your accounting team are spending a lot of time processing exported spreadsheets received from other teams, managing jury-rigged integrations to your accounting system, and manually entering or changing journal entries in your accounting system, Qniform will likely be a great fit for you.
+
 ## Features of Qniform
 * A unique event driven architecture. Book activity the second it happens
 * A simple interface for connecting new upstream systems and creating the rules that turn their events into journal entries.

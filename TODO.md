@@ -38,7 +38,8 @@ New Rules
   Sale rule
   Loan issuance rule
 
-Landing page
+_DONE_ Landing page
+Plan/mockups for 'try it' function
 Add transaction concept to backend
 Book entries from Frontend
 Better FE reporting on Spec fails
@@ -50,7 +51,7 @@ Month end close
 Payment events and partials
 Better COA handling, not strings
 
-Event driven, no running application.
+Event driven architecture option, no running application.
 
 ## MVP Description
 1. User has landing page where they can see the pitch and features and get to the 'try it now' page.
