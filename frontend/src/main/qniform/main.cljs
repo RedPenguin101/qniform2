@@ -89,13 +89,43 @@
   (fn []
     [:p (pr-str (:test (edn/read-string @rules2)))]))
 
-(defn app []
+(defn landing-page []
+  [:div [:h1 "Qniform"]
+   [:p "Qniform is the future of accounting systems. It allows your accounting department 
+        to drastically reduce the time they spend doing repetitive work like creating 
+        journal entries, closing the books and running reports, freeing them up for more 
+        value adding finance tasks."]
+   [:p "It does this by recognizing that the modern organization has specialized software 
+        for almost every function, all generating activity that needs to be accounted for.
+        Legacy enterprise accounting systems are built on the premise that" [:em " people "]
+    "will be booking journal entries. Systematic integration with the rest of your software environment
+     is often a poorly implemented afterthought.
+     Qniform is built from the ground up to directly with your upstream software systems to find out what 
+     activity needs accounting for, and using rules that you define, will turn those
+     events into journal entries."]
+   [:button "Click here to try it out!"]
+   [:h2 "Features of Qniform"]
+   [:ul
+    [:li "A unique event driven architecture. Book activity the second it happens"]
+    [:li "A simple interface for connecting new upstream systems and creating the rules
+          that turn their events into journal entries."]
+    [:li "Utilities for gradual migration from an existing accounting system."]
+    [:li "Close your month or year with ease using automated closing rules."]
+    [:li "(something about knowledge dates)"]
+    [:li "Changed your accounting rules? Rerun your entire GL with the new rules in seconds."]
+    [:li "Reporting metadata allows flexible and changable reporting without polluting your chart of accounts."]
+    [:li "Scripting language for advanced users without breakage risk."]]])
+
+(defn rule-testing-page []
   [:div
    [:p (pr-str @selected-rule)]
    [get-print]
    [:h1 "Qniform Rule Tester"]
    [rule-dropdown]
    [event-form (get-schema rules @selected-rule)]])
+
+(defn app []
+  [landing-page])
 
 (defn mount []
   (rd/render [app]
