@@ -70,6 +70,8 @@ To 'change' an entry, you have to either 'correct' it (supply the correct entry,
 But none of these entries are touched after initially being booked.
 So when you query the database you're potentially going to get back multiple rows for a single journal entry, which need to be aggregated into a single entry[^3].
 
+[^3]: Really identical to 'projection' in an event sourcing system. Which ultimately is what this is, but hopefully without the jargon and hype.
+
 This is an important detail the accounting namespace is hiding:
 The implementation of the event history.
 In this namespace, everything you do should have the option to supply a 'knowledge datetime', and the values returned will be 'journal entries' showing what you knew at that time, with no exposure of the 'new, correct, nullify' concepts that actually live in the database.
@@ -103,8 +105,6 @@ In this namespace, everything you do should have the option to supply a 'knowled
                            jes)))
 ```
 
-[^3]: Really identical to 'projection' in an event sourcing system. Which ultimately is what this is, but hopefully without the jargon and hype.
-
 ### MVP
 I defined what the MVP for this effort is.
 In short, I want a landing page which can be used for pitching.
@@ -128,5 +128,32 @@ This should highlight what is the key attribute of Qniform, which is the touchle
 ## 21st September
 Doing some mockups for the above functionality.
 
-First, tidy up the landing page with [MVP.css](https://andybrewer.github.io/mvp/).
+First, tidy up the landing page with [MVP.css](https://andybrewer.github.io/mvp/), and add a simple nav bar and page navigation.
+Also, add a "Try" page, which is navigated to when the user clicks the "Try it Now!" button from the landing page.
+
+From this page, the user should be presented with a page representing a dummy entity/general ledger[^4].
+
+[^4]: It is possible to have multiple general ledgers for a single entity, but we avoid that complexity for now.
+
+This is the main entity screen. From here you should be able to see, or navigate to, the TB, GL, Rules, and Events.
+(Ultimately there should be some sort of period selector here, but not necessary for now)
+The GL (or a GL ledger) you can get to by drilling down into the TB.
+You can also get there by going through events, selecting one that will show you the transaction/entries, and from there to the ledgers.
+
+Start with the TB.
+A simple table to start with:
+
+```
+      DR    CR
+acc1   -     -
+acc2   -     -
+acc3   -     -
+acc4   -     -
+```
+
+Obviously, it will be empty at first.
+We'll serve this up from the backend, which requires adding a TB endpoint.
+
+A quick tangent: Up to now I've been starting the front and backend separately.
+That's a pain, so I want to do it together, following [this guide.](https://blog.agical.se/en/posts/shadow-cljs-clojure-cljurescript-calva-nrepl-basics/)
 

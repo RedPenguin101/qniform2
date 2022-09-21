@@ -144,8 +144,13 @@
     [event-form (get-schema rules @selected-rule)]]])
 
 (defn try-page []
-  [:div [:header [nav]
-         [:h1 "Qniform Demo"]]])
+  [:div
+   [:header [nav]
+    [:h1 "Abacus LLC"]
+    [:p "A made up company that we've just set up to show you how to use Qniform"]
+    [:p [:i "Book Currency: USD"]]]
+   [:main
+    [:section]]])
 
 (defn app []
   [(case @active-page
