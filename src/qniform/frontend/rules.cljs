@@ -1,4 +1,4 @@
-(ns qniform.rules
+(ns qniform.frontend.rules
   (:require [meander.epsilon :as e]
             [malli.core :as m]))
 

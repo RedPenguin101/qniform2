@@ -1,10 +1,10 @@
-(ns qniform.main
+(ns qniform.frontend.main
   (:require [reagent.core :as r]
             [clojure.edn :as edn]
             [reagent.dom :as rd]
             [ajax.core :refer [GET]]
             [malli.core :as m]
-            [qniform.rules :refer [rules get-schema get-xform]]))
+            [qniform.frontend.rules :refer [rules get-schema get-xform]]))
 
 (def active-page (r/atom :try))
 (def selected-rule (r/atom :share-issue))
