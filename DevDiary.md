@@ -157,3 +157,9 @@ We'll serve this up from the backend, which requires adding a TB endpoint.
 A quick tangent: Up to now I've been starting the front and backend separately.
 That's a pain, so I want to do it together, following [this guide.](https://blog.agical.se/en/posts/shadow-cljs-clojure-cljurescript-calva-nrepl-basics/)
 
+It was actually really easy! I was _not_ expecting it to be.
+One thing I couldn't get working: I have a 'build' defined in `shadow-cljs.edn` and an _alias_ (dev) defined in deps.edn. I can't figure out how to start both of them at one.
+Not a problem for now.
+
+Now, merge the branch in.
+

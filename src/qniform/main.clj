@@ -79,4 +79,5 @@
 
 (comment
   (start cors 3000)
+  (start no-cors 3000)
   (stop))
