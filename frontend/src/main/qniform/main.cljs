@@ -6,6 +6,7 @@
             [malli.core :as m]
             [qniform.rules :refer [rules get-schema get-xform]]))
 
+(def active-page (r/atom :try))
 (def selected-rule (r/atom :share-issue))
 (def rules2 (r/atom nil))
 
@@ -62,7 +63,7 @@
   (let [event (r/atom {})]
     (fn []
       [:div
-       [:p (prn-str @event)]
+       #_[:p (prn-str @event)]
        [:h2 (get-in rules [@selected-rule :name])]
        [:div#event-form
         [:form {:on-submit #(.preventDefault %)}
@@ -89,17 +90,28 @@
   (fn []
     [:p (pr-str (:test (edn/read-string @rules2)))]))
 
+(defn nav []
+  [:nav
+   [:a [:p "Qniform"]]
+   [:ul
+    [:li {:on-click #(reset! active-page :landing)} "Landing Page"]
+    [:li {:on-click #(reset! active-page :rules-tester)} "Rule Tester"]]])
+
 (defn landing-page []
-  [:div [:header [:h1 "Qniform"]
-         [:p "Qniform is the future of accounting systems. It allows your accounting department 
+  [:div
+   [:header
+    [nav]
+    [:h1 "Qniform"]
+    [:p "Qniform is the future of accounting systems. It allows your accounting department 
         to drastically reduce the time they spend doing repetitive work like creating 
         journal entries, closing the books and running reports, freeing them up for more 
         value adding finance tasks."]
-         [:p "As a modern organization, your business activity is handled by specialized upstream
+    [:p "As a modern organization, your business activity is handled by specialized upstream
               systems. Qniform will connect to them, and let you define how to generate accounting
               entries from them."]
 
-         [:button "Click here to try it out!"]]
+    [:button {:on-click #(reset! active-page :try)}
+     "Click here to try it out!"]]
    [:main
     [:p "It does this by recognizing that the modern organization has specialized software 
         for almost every function, all generating activity that needs to be accounted for.
@@ -123,15 +135,23 @@
 
 (defn rule-testing-page []
   [:div
-   [:header [:p (pr-str @selected-rule)]
-    [get-print]
+   [:header #_[:p (pr-str @selected-rule)]
+    #_[get-print]
+    [nav]
     [:h1 "Qniform Rule Tester"]
     [rule-dropdown]]
    [:main
     [event-form (get-schema rules @selected-rule)]]])
 
+(defn try-page []
+  [:div [:header [nav]
+         [:h1 "Qniform Demo"]]])
+
 (defn app []
-  [landing-page])
+  [(case @active-page
+     :landing      landing-page
+     :rules-tester rule-testing-page
+     :try          try-page)])
 
 (defn mount []
   (rd/render [app]
