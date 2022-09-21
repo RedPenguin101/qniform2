@@ -124,3 +124,9 @@ Here's the list.
 One thing I would like to have in there as well, though this is probably the next phase, is a 'simulate' option. 
 The user can do all of the above, but then can hit a 'simulate' button, which will start generating events based on the rules, and closing the books.
 This should highlight what is the key attribute of Qniform, which is the touchless operation.
+
+## 21st September
+Doing some mockups for the above functionality.
+
+First, tidy up the landing page with [MVP.css](https://andybrewer.github.io/mvp/).
+
