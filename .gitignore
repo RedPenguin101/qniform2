@@ -2,3 +2,10 @@
 .clj-kondo
 .lsp
 .portal
+.shadow-cljs
+node_modules/
+public/compiledjs/
+.cpcache
+.nrepl-port
+target
+*.db
