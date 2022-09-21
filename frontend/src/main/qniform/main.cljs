@@ -123,11 +123,12 @@
 
 (defn rule-testing-page []
   [:div
-   [:p (pr-str @selected-rule)]
-   [get-print]
-   [:h1 "Qniform Rule Tester"]
-   [rule-dropdown]
-   [event-form (get-schema rules @selected-rule)]])
+   [:header [:p (pr-str @selected-rule)]
+    [get-print]
+    [:h1 "Qniform Rule Tester"]
+    [rule-dropdown]]
+   [:main
+    [event-form (get-schema rules @selected-rule)]]])
 
 (defn app []
   [landing-page])
