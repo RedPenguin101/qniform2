@@ -1,8 +1,7 @@
 (ns qniform.frontend.main
   (:require [reagent.core :as r]
-            [clojure.edn :as edn]
             [reagent.dom :as rd]
-            [ajax.core :refer [GET]]
+            [ajax.core :as ajax]
             [malli.core :as m]
             [qniform.frontend.rules :refer [rules get-schema get-xform]]))
 
@@ -17,13 +16,13 @@
 
 ;; API calls
 (defn get-rules [d]
-  (GET "http://localhost:3000/api/rules"
+  (ajax/GET "http://localhost:3000/api/rules"
     {:handler #(reset! d %)
      :error-handler (fn [{:keys [status status-text]}]
                       (js/console.log status status-text))}))
 
 (defn get-trial-balance [d]
-  (GET "http://localhost:3000/api/trial-balance"
+  (ajax/GET "http://localhost:3000/api/trial-balance"
     {:handler #(reset! d %)
      :error-handler (fn [{:keys [status status-text]}]
                       (js/console.log status status-text))}))
@@ -170,6 +169,7 @@
     [:table
      [:tr [:th "Ledger"] [:th "Debit (USD)"] [:th "Credit (USD)"]]
      (for [[row-name [dr cr]] tb]
+       ^{:key row-name}
        [:tr [:td row-name]
         [:td (two-dp (js/parseFloat dr))]
         [:td (two-dp (js/parseFloat cr))]])]))
