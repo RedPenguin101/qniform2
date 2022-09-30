@@ -39,6 +39,9 @@
     ;; should return something sensible here, not pass through DB return
     (db/book-journal-entries! jes)))
 
+(defn get-journal-entries! []
+  (db/get-journal-entries!))
+
 (defn filter-on-datetime [datetime jes]
   (remove #(t/date> (:knowledge-datetime %) datetime) jes))
 
@@ -57,7 +60,7 @@
    (aggregate-je (filter-on-datetime datetime jes))))
 
 (defn- tb-signed->drcr [tb]
-  (update-vals tb #(if (neg? %) [:cr (abs %)] [:dr %])))
+  (update-vals tb #(if (neg? %) [0 (abs %)] [% 0])))
 
 (defn trial-balance [jes]
   (tb-signed->drcr (reduce (fn [A entry]
@@ -66,6 +69,9 @@
                                      (:local-amount entry)))
                            (zipmap (set (map :account jes)) (repeat 0))
                            jes)))
+
+(comment
+  (-> (get-journal-entries!) aggregate-je trial-balance))
 
 (comment
   (book-journal-entries! [{:id 1
