@@ -8,7 +8,8 @@
             [compojure.route :as route]
             [clojure.data.json :as json]
             [qniform.events :refer [validate-event event->transaction]]
-            [qniform.rules :refer [rules]]))
+            [qniform.rules :refer [rules]]
+            [qniform.accounting :as acc]))
 
 (defonce server (atom nil))
 
@@ -44,12 +45,21 @@
    :header {"Content-Type" "text"}
    :body (pr-str (update-vals rules #(dissoc % :xform)))})
 
+(defn trial-balance-request [_]
+  (merge
+   {:headers {"Content-Type" "application/json"}}
+   {:body (-> (acc/get-journal-entries!)
+              acc/aggregate-je
+              acc/trial-balance
+              json/write-str)}))
+
 (defroutes routes
   (GET "/" [] "<h1>Qniform</h1>")
   (GET "/readback" [] readback)
   (POST "/readback" [] readback)
   (POST "/api/event" [] event-response)
   (GET "/api/rules" [] rule-request)
+  (GET "/api/trial-balance" [] trial-balance-request)
   (route/not-found "<h1>Page not found</h1>"))
 
 (defn no-cors [routes]
