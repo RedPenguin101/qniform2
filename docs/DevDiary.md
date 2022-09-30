@@ -126,9 +126,7 @@ The user can do all of the above, but then can hit a 'simulate' button, which wi
 This should highlight what is the key attribute of Qniform, which is the touchless operation.
 
 ## 21st September
-Doing some mockups for the above functionality.
-
-First, tidy up the landing page with [MVP.css](https://andybrewer.github.io/mvp/), and add a simple nav bar and page navigation.
+Tidy up the landing page with [MVP.css](https://andybrewer.github.io/mvp/), and add a simple nav bar and page navigation.
 Also, add a "Try" page, which is navigated to when the user clicks the "Try it Now!" button from the landing page.
 
 From this page, the user should be presented with a page representing a dummy entity/general ledger[^4].
@@ -163,3 +161,145 @@ Not a problem for now.
 
 Now, merge the branch in.
 
+...
+
+Well I messed that up apparently. The feature branch is now main on GH remote origin. Oh well.
+
+Now, to add the TB endpoint.
+Should be pretty trivial with the accounting NS from a couple of days back.
+
+...
+
+I changed the spec of the TB row a bit:
+
+```clojure
+;; from
+{:tb-row [:dr 1000]}
+;; to 
+{:tb-row [1000 0]}
+```
+
+The numerical part of the row is always going to be a debit and a credit, so it's easier to have that as the format.
+
+The API endpoint was indeed trivial:
+
+```clojure
+(defn trial-balance-request [_]
+  (merge
+   {:headers {"Content-Type" "application/json"}}
+   {:body (-> (acc/get-journal-entries!)
+              acc/aggregate-je
+              acc/trial-balance
+              json/write-str)}))
+```
+
+And the frontend simply a matter of displaying as a table:
+
+![A simple trial balance](./images/simple_tb.png)
+
+It's not interactive right now (eventually this should be a path to access the underlying ledger itself.), and obviously it has actual data in it, which it shouldn't at this point.
+Next, I'd like an overlay modal which points to the TB and says something like:
+
+> This is the trial balance of Abacus. 
+> Right now, there is nothing in it, since we haven't booked any activity yet.
+
+Then, after clicking OK a new modal over the 'connected systems' section, which should have a 'new system' button.
+
+> Let's fix that by setting up our first connected system and event rule.
+> Click "New" here to go to the rule setup screen.
+
+The first rule is going to be to issue some capital.
+We'll assume that the accountant has some upstream system which is sending them share capital events.
+(This is pretty unlikely.)
+
+> The first thing a company generally does is issue some share capital.
+> At the heart of Qniform is the presumption that you will not be booking entries yourself
+> Instead, you will be processing _events_, and setting up _rules_ for how to process those events into double-entry journals.
+>
+> Further, Qniform expects that the accountant is not creating these events themselves, but _subscribing_ to events published by an upstream system.
+> In this way, Qniform can be a truly hands-off accounting system.
+>
+> For this example, we will presume you have an upstream system for managing company corporate events, like the issuing of share capital.
+> (Don't worry if you don't, Qniform will still work fine if you want to input a few events manually, or get your legal team to do it.)
+>
+> First, make the system name - let's say it's called "Corporate System".
+
+For this, we'll need the following:
+
+* A section on the try page for "Systems", preferably to the right of the TB.
+* An 'Add system' button.
+* _NOT_ backend persistence of systems yet - that can wait, live in the frontend for now
+
+## 22nd September
+### Thinking about systems and events
+Let's think about the model for systems and events more carefully.
+So the accountant is going to maintaining the GL for an entity.
+But probably several entities, all of which share upstream systems.
+So the 'attachment' of a system can't be the GL/Entity itself.
+It has to be the account, which there is no concept of right now.
+So the user should be able to set up a new system from the GL screen, but they should be accessible ("loadable") from the account level.
+
+So much for systems. Now for events.
+
+Events have some of the same characteristics as systems:
+They are likely to be shared across GLs.
+For example if you have an upstream payroll system that handles employees of multiple companies, the salary payment events coming out of it are likely to be identical, with the only difference being the manco they relate to.
+However, it's not _so_ simple.
+There might be subtle differences between companies, both in the events themselves and in how they are translated to journal entries, for local accounting rules.
+
+So for these we have to walk the line between sharing for ease of use across GLs, and allowing variation between GLs to accomodate local changes.
+
+This is, of course, the problem that comes up in every product ever.
+
+Let's play out a scenario:
+
+1. The user sets up an upstream payroll system X for GLs A,B and C.
+2. She sets up an event E1 for X/A for salary payments.
+
+```
+originating-system: X
+os-identifier:      abc
+event-type:         salary-payment
+management-company: A
+currency:           USD
+local-amount:       1,000
+// plus date, comment, etc.
+```
+
+3. She sets up a rule for E1, which translates the event into journal entries.
+
+```
+event-id:     abc
+dr-cr:        cr
+account:      cash
+je-type:      new
+local-amount: 1,000
+// etc.
+```
+### Assignment: Connecting events to GLs
+
+Even before getting to the question of extending this, how does 'assignment' of this event to a particular GL work?
+The API endpoint is just `api/event`. 
+How does Qniform know to apply this event to GL A?
+
+Here are the options:
+
+#### *The upstream system can indicate which Qniform GL it relates to*
+Fo examples as a query param for the api endpoint: `api/event?gl=A`.
+I don't love this.
+This pushes the accounting domain model (general ledgers) to upstream systems.
+I don't think that should be their responsibility.
+
+#### *The upstream system describes what **legal entity** it relates to*
+This is better, because it decouples from the accounting context, by adding legal entity as an intermediate model.
+Both the upstream system and Qniform are free to interpret that how they like.
+Legal entity is a great intermediary for identification because it's universally accepted (enforced by law).
+There are still some problems, the biggest being having a golden source for what those entities are. 
+But that is solvable.
+This can be implemented either as query params (`api/event?entity=A`) or as part of the events (in the body of the event `entity=A`) but it amounts to the same thing.
+
+What if the upstream system _doesn't know_ the entity though? The big example I can think of here is an IBOR system, which has a _portfolio_ model, not an entity model.
+
+#### *Qniform unilaterally decides assignment*
+This is the most flexible.
+Say the above event comes in: the event definition would have some logic to decide how to assign the event to a particular GL.
