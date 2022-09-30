@@ -5,6 +5,16 @@ p.debug {
   border: 1px solid red;
 }
 
+/* System Cards */
+
+aside.selected {
+  width: 100%;
+}
+
+aside.hidden {
+  display: none;
+}
+
 /* Navbar */
 
 nav {

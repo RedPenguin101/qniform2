@@ -175,23 +175,43 @@
         [:td (two-dp (js/parseFloat dr))]
         [:td (two-dp (js/parseFloat cr))]])]))
 
-(def dummy-upstream-systems (r/atom {}))
+(def dummy-upstream-systems
+  (r/atom {:test {:name "Test", :description "test description"}}))
 
 (defn systems-summary-component []
   (let [new-system-form-open (r/atom false)
-        new-system-data (r/atom {})]
+        new-system-data (r/atom {})
+        selected-system (r/atom nil)]
     (fn []
       [:div
+       ;; existing systems
        [:section
-        (for [[id system] @dummy-upstream-systems]
-          ^{:key id}
-          [:aside [:h3 (:name system)] [:p (:description system)]])]
 
+        #_[:p.debug
+           "selected: " (pr-str @selected-system) " "
+           (pr-str @dummy-upstream-systems)]
+        (doall
+         (for [[sid system] @dummy-upstream-systems]
+           ^{:key sid}
+           [:aside.system
+            {:on-click #(if (count (:events system))
+                          (reset! selected-system sid)
+                          (reset! selected-system sid))
+             :class (cond (= sid @selected-system) :selected
+                          @selected-system :hidden)}
+            [:h3 (:name system) " "
+             (when (= @selected-system sid)
+               [:a {:on-click #(do (.stopPropagation %)
+                                   (reset! selected-system nil))} "x"])]
+            [:p (:description system)]
+            [:p [:small
+                 "Events: " (or (count (:events system)) "0")]]]))]
+
+       ;; new system
        (if-not @new-system-form-open
          [:section [:button
                     {:on-click #(swap! new-system-form-open not)}
-                    "Add new System"]
-          #_[:p.debug (pr-str @dummy-upstream-systems)]]
+                    "Add new System"]]
          [:section
           #_[:p.debug (pr-str @new-system-data)]
           [:form
@@ -235,7 +255,9 @@
          [:p "Let's fix that by setting up our first connected system and event rule."]]
         [:hr]
         [:header [:h2 "Upstream Systems"]
-         [:p "Click the 'Add New System' button."]]
+         [:p (if (empty? @dummy-upstream-systems)
+               "Click the 'Add New System' button."
+               "Great. Now click on the system to select it.")]]
         [systems-summary-component dummy-upstream-systems]]])))
 
 (defn app []

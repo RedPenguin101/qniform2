@@ -310,3 +310,26 @@ Time to do upstream system set up.
 Start of very simple: A system with a name and description, and show it with a card.
 
 I added a `systems-summary-component` to do this, standard global atom with system names and form.
+
+Next is adding an event / rule for the system.
+I'll do the event first, since rule is going to be _hard_ I think.
+The event thing in theory is just letting the user describe a map and turning it into a Malli spec.
+
+```
+Event Name: Text
+Share: Whole Number
+Price Per Share: Currency
+Comment: Text
+```
+
+to
+
+```clojure
+[:map
+ [:event-id :string]
+ [:shares :int]
+ [:price-per-share money]
+ [:comment :string]]
+```
+
+To start I put in functionality to select a system: you click it and the others, if any, are hidden, and the selected one spans the screen.
