@@ -8,16 +8,13 @@
 
 (def active-page (r/atom :try))
 (def selected-rule (r/atom :share-issue))
-(def rules2 (r/atom nil))
 
-(defn rule-dropdown []
-  (fn []
-    [:div.dropdown
-     [:button.dropbtn "Select Rule"]
-     [:div.dropdown-content
-      (for [[k v] rules]
-        [:a {:on-click #(reset! selected-rule k)}
-         (:name v)])]]))
+;; API calls
+(defn get-rules [d]
+  (GET "http://localhost:3000/api/rules"
+    {:handler #(reset! d %)
+     :error-handler (fn [{:keys [status status-text]}]
+                      (js/console.log status status-text))}))
 
 (defn type-display [typ]
   (cond
@@ -44,6 +41,17 @@
       (fn-spec? typ) (type-coerce (fn-spec-coerce typ) value)
 
       :else "COERCE FAIL")))
+
+;; Components
+
+(defn rule-dropdown []
+  (fn []
+    [:div.dropdown
+     [:button.dropbtn "Select Rule"]
+     [:div.dropdown-content
+      (for [[k v] rules]
+        [:a {:on-click #(reset! selected-rule k)}
+         (:name v)])]]))
 
 (defn journal-entries->table [jes]
   [:table
@@ -78,17 +86,6 @@
         [:p (if (m/validate (get-schema rules @selected-rule) @event)
               (transaction-display ((get-xform rules @selected-rule) @event))
               "Event is not valid")]]])))
-
-(defn get-rules [d]
-  (GET "http://localhost:3000/api/rules"
-    {:handler #(reset! d %)
-     :error-handler (fn [{:keys [status status-text]}]
-                      (js/console.log status status-text))}))
-
-(defn get-print []
-  (get-rules rules2)
-  (fn []
-    [:p (pr-str (:test (edn/read-string @rules2)))]))
 
 (defn nav []
   [:nav
@@ -149,8 +146,7 @@
 
 (defn rule-testing-page []
   [:div
-   [:header #_[:p (pr-str @selected-rule)]
-    #_[get-print]
+   [:header
     [nav]
     [:h1 "Qniform Rule Tester"]
     [rule-dropdown]]
