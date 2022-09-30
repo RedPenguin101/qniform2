@@ -1,4 +1,22 @@
 # QNIFORM TASKS
+
+## Set up upstream system.
+
+## 'Try It' MVP Description
+1. User has landing page where they can see the pitch and features and get to the 'try it now' page.
+2. User can set up new ledger, with name, book-ccy.
+3. User can set up upstream system
+4. User can define event / rule for that system
+5. User can manually input and submit an event that gets turned into jes
+6. User can see TB and dig into general ledger
+7. User can look at JE and get to Transaction / Event
+8. User can manually update an event, generating correction entries
+
+## DESIGN QUESTIONS
+What happens when an event comes in that fails the spec test?
+
+## Old tasks
+
 _DONE_ The Spec / Rule system and Front end
   _DONE_ User can enter data in form and (if valid) see journal entries
     _DONE_ Malli Spec for expense event
@@ -52,16 +70,3 @@ Payment events and partials
 Better COA handling, not strings
 
 Event driven architecture option, no running application.
-
-## MVP Description
-1. User has landing page where they can see the pitch and features and get to the 'try it now' page.
-2. User can set up new ledger, with name, book-ccy.
-3. User can set up upstream system
-4. User can define event / rule for that system
-5. User can manually input and submit an event that gets turned into jes
-6. User can see TB and dig into general ledger
-7. User can look at JE and get to Transaction / Event
-8. User can manually update an event, generating correction entries
-
-## DESIGN QUESTIONS
-What happens when an event comes in that fails the spec test?

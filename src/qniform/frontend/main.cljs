@@ -3,7 +3,8 @@
             [reagent.dom :as rd]
             [ajax.core :as ajax]
             [malli.core :as m]
-            [qniform.frontend.rules :refer [rules get-schema get-xform]]))
+            [qniform.frontend.rules :refer [rules get-schema get-xform]]
+            [clojure.string :as str]))
 
 (defonce active-page (r/atom :try))
 (def selected-rule (r/atom :share-issue))
@@ -174,6 +175,48 @@
         [:td (two-dp (js/parseFloat dr))]
         [:td (two-dp (js/parseFloat cr))]])]))
 
+(def dummy-upstream-systems (r/atom {}))
+
+(defn systems-summary-component []
+  (let [new-system-form-open (r/atom false)
+        new-system-data (r/atom {})]
+    (fn []
+      [:div
+       [:section
+        (for [[id system] @dummy-upstream-systems]
+          ^{:key id}
+          [:aside [:h3 (:name system)] [:p (:description system)]])]
+
+       (if-not @new-system-form-open
+         [:section [:button
+                    {:on-click #(swap! new-system-form-open not)}
+                    "Add new System"]
+          #_[:p.debug (pr-str @dummy-upstream-systems)]]
+         [:section
+          #_[:p.debug (pr-str @new-system-data)]
+          [:form
+           [:label {:for "system-name"} "System Name"]
+           [:input#system-name
+            {:on-change #(swap! new-system-data assoc :name (-> % .-target .-value))
+             :value (:name @new-system-data)
+             :type :text :name "system-name"
+             :placeholder "System Name"}]
+           [:label {:for "description"} "Description"]
+           [:input#description
+            {:on-change #(swap! new-system-data assoc :description (-> % .-target .-value))
+             :value (:description @new-system-data)
+             :type :text :name "description"
+             :placeholder "Description"}]
+           [:button {:type :submit
+                     :on-click
+                     #(do (.preventDefault %)
+                          (swap! dummy-upstream-systems assoc
+                                 (keyword (str/lower-case (str/replace (:name @new-system-data) #" " "-")))
+                                 @new-system-data)
+                          (reset! new-system-data {})
+                          (reset! new-system-form-open false))}
+            "Create"]]])])))
+
 (defn try-page []
   (let [_tb (get-trial-balance trial-balance)]
     (fn []
@@ -183,9 +226,17 @@
         [:p "A made up company that we've just set up to show you how to use Qniform"]
         [:p [:i "Book Currency: USD"]]]
        [:main
+        [:hr]
         [:section
          [:header [:h2 "Trial Balance"]]
-         [trial-balance-view @trial-balance]]]])))
+         [trial-balance-view @trial-balance]
+         [:p "This is the current trial balance of Abacus.
+              Right now, there is nothing in it, since we haven't booked any activity yet."]
+         [:p "Let's fix that by setting up our first connected system and event rule."]]
+        [:hr]
+        [:header [:h2 "Upstream Systems"]
+         [:p "Click the 'Add New System' button."]]
+        [systems-summary-component dummy-upstream-systems]]])))
 
 (defn app []
   [(case @active-page

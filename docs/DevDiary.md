@@ -303,3 +303,10 @@ What if the upstream system _doesn't know_ the entity though? The big example I 
 #### *Qniform unilaterally decides assignment*
 This is the most flexible.
 Say the above event comes in: the event definition would have some logic to decide how to assign the event to a particular GL.
+
+## 30th September
+
+Time to do upstream system set up.
+Start of very simple: A system with a name and description, and show it with a card.
+
+I added a `systems-summary-component` to do this, standard global atom with system names and form.
