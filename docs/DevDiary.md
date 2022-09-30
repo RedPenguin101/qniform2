@@ -344,3 +344,7 @@ For example, before the user has set up a new system, they are shown the "Add ne
 But after a system is created, they are told to select the system by clicking it instead.
 
 I think this will need to be expanded a lot, to the extent of having some global state tracking the users progress through the tutorial.
+
+...
+
+I did a bit of that, seems to work well.

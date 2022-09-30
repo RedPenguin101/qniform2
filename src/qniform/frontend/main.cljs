@@ -10,6 +10,13 @@
 (def selected-rule (r/atom :share-issue))
 (def trial-balance (r/atom nil))
 
+(def tutorial-status (r/atom #{:at-start}))
+
+(defn transition-tutorial [state action]
+  (case action
+    :set-up-first-system
+    (-> state (disj :at-start) (conj :created-system))))
+
 (defn two-dp [num]
   (.toLocaleString num "en-UK"
                    (clj->js {"maximumFractionDigits" 2,
@@ -235,7 +242,8 @@
                                  (keyword (str/lower-case (str/replace (:name @new-system-data) #" " "-")))
                                  @new-system-data)
                           (reset! new-system-data {})
-                          (reset! new-system-form-open false))}
+                          (reset! new-system-form-open false)
+                          (swap! tutorial-status transition-tutorial :set-up-first-system))}
             "Create"]]])])))
 
 (defn try-page []
@@ -243,14 +251,16 @@
     (fn []
       [:div
        [:header [nav]
-        [:p.tutorial
-         "We've created a company and general ledger for you called 'Abacus LLC'. 
+        (when (:at-start @tutorial-status)
+          [:div
+           [:p.tutorial
+            "We've created a company and general ledger for you called 'Abacus LLC'. 
           We'll use this to go through some of the concepts of Qniform"]
-        [:p.tutorial
-         "This page will look very similar to your 'main' entity page in production,
+           [:p.tutorial
+            "This page will look very similar to your 'main' entity page in production,
           except that this blue, italic tutorial text won't be there."]
-        [:p.tutorial
-         "If you ever don't know what to do next, look for this blue tutorial text somewhere on the page."]
+           [:p.tutorial
+            "If you ever don't know what to do next, look for this blue tutorial text somewhere on the page."]])
         [:h1 "ENTITY: Abacus LLC"]
         [:p "A made up company that we've just set up to show you how to use Qniform"]
         [:p [:i "Book Currency: USD"]]]
@@ -258,25 +268,31 @@
         [:hr]
         [:section
          [:header [:h2 "Trial Balance"]]
-         [:p.tutorial "This is the current trial balance of Abacus.
-              Right now, there is nothing in it, since we haven't booked any journal entries yet."]
+         (when (:at-start @tutorial-status)
+           [:p.tutorial "This is the current trial balance of Abacus.
+              Right now, there is nothing in it, since we haven't booked any journal entries yet."])
          [trial-balance-view @trial-balance]
-         [:p.tutorial "In Qniform, you don't book journal entries yourself.
+         (when (:at-start @tutorial-status)
+           [:div
+            [:p.tutorial "In Qniform, you don't book journal entries yourself.
                        Instead, you set up 'Upstream Systems' (representing the software your company uses to manage its business),
                        and then set up 'events' for those systems, which Qniform will turn into journal entries based on rules that
                        you create."]
-         [:p.tutorial "Let's set up our first System and Event."]]
+            [:p.tutorial "Let's set up our first System and Event."]])]
         [:hr]
         [:header [:h2 "Upstream Systems"]]
-        (if (empty? @dummy-upstream-systems)
-          [:div [:p.tutorial
-                 "The first thing a Company does is usually to issue some Equity.
+        (if-not (:created-system @tutorial-status)
+          [:div
+           [:p.tutorial
+            "The first thing a Company does is usually to issue some Equity.
                   So we'll set up a hypothetical upstream system for corporate actions, 
                   which will be sending you information about equity issuance.
                   "]
            [:p.tutorial "(Don't worry if you don't have a system that does this, 
                   Qniform will work fine)"]
-           [:p.tutorial "Click the 'Add New System' button."]]
+           [:p.tutorial "Click the 'Add New System' button. 
+                         In reality the name would be the name of the actual upstream application.
+                         Here, just call it something sensible so you remember what it is."]]
           [:p.tutorial "Great. Now click on the system to select it."])
 
         [systems-summary-component dummy-upstream-systems]]])))
