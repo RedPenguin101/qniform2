@@ -6,12 +6,24 @@
             [malli.core :as m]
             [qniform.frontend.rules :refer [rules get-schema get-xform]]))
 
-(def active-page (r/atom :try))
+(defonce active-page (r/atom :try))
 (def selected-rule (r/atom :share-issue))
+(def trial-balance (r/atom nil))
+
+(defn two-dp [num]
+  (.toLocaleString num "en-UK"
+                   (clj->js {"maximumFractionDigits" 2,
+                             "minimumFractionDigits" 2})))
 
 ;; API calls
 (defn get-rules [d]
   (GET "http://localhost:3000/api/rules"
+    {:handler #(reset! d %)
+     :error-handler (fn [{:keys [status status-text]}]
+                      (js/console.log status status-text))}))
+
+(defn get-trial-balance [d]
+  (GET "http://localhost:3000/api/trial-balance"
     {:handler #(reset! d %)
      :error-handler (fn [{:keys [status status-text]}]
                       (js/console.log status status-text))}))
@@ -153,14 +165,27 @@
    [:main
     [event-form (get-schema rules @selected-rule)]]])
 
+(defn trial-balance-view []
+  (fn [tb]
+    [:table
+     [:tr [:th "Ledger"] [:th "Debit (USD)"] [:th "Credit (USD)"]]
+     (for [[row-name [dr cr]] tb]
+       [:tr [:td row-name]
+        [:td (two-dp (js/parseFloat dr))]
+        [:td (two-dp (js/parseFloat cr))]])]))
+
 (defn try-page []
-  [:div
-   [:header [nav]
-    [:h1 "Abacus LLC"]
-    [:p "A made up company that we've just set up to show you how to use Qniform"]
-    [:p [:i "Book Currency: USD"]]]
-   [:main
-    [:section]]])
+  (let [_tb (get-trial-balance trial-balance)]
+    (fn []
+      [:div
+       [:header [nav]
+        [:h1 "Abacus LLC"]
+        [:p "A made up company that we've just set up to show you how to use Qniform"]
+        [:p [:i "Book Currency: USD"]]]
+       [:main
+        [:section
+         [:header [:h2 "Trial Balance"]]
+         [trial-balance-view @trial-balance]]]])))
 
 (defn app []
   [(case @active-page
