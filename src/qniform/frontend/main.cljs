@@ -176,7 +176,8 @@
         [:td (two-dp (js/parseFloat cr))]])]))
 
 (def dummy-upstream-systems
-  (r/atom {:test {:name "Test", :description "test description"}}))
+  (r/atom #_{:test {:name "Test", :description "test description"}}
+   {}))
 
 (defn systems-summary-component []
   (let [new-system-form-open (r/atom false)
@@ -242,22 +243,42 @@
     (fn []
       [:div
        [:header [nav]
-        [:h1 "Abacus LLC"]
+        [:p.tutorial
+         "We've created a company and general ledger for you called 'Abacus LLC'. 
+          We'll use this to go through some of the concepts of Qniform"]
+        [:p.tutorial
+         "This page will look very similar to your 'main' entity page in production,
+          except that this blue, italic tutorial text won't be there."]
+        [:p.tutorial
+         "If you ever don't know what to do next, look for this blue tutorial text somewhere on the page."]
+        [:h1 "ENTITY: Abacus LLC"]
         [:p "A made up company that we've just set up to show you how to use Qniform"]
         [:p [:i "Book Currency: USD"]]]
        [:main
         [:hr]
         [:section
          [:header [:h2 "Trial Balance"]]
+         [:p.tutorial "This is the current trial balance of Abacus.
+              Right now, there is nothing in it, since we haven't booked any journal entries yet."]
          [trial-balance-view @trial-balance]
-         [:p "This is the current trial balance of Abacus.
-              Right now, there is nothing in it, since we haven't booked any activity yet."]
-         [:p "Let's fix that by setting up our first connected system and event rule."]]
+         [:p.tutorial "In Qniform, you don't book journal entries yourself.
+                       Instead, you set up 'Upstream Systems' (representing the software your company uses to manage its business),
+                       and then set up 'events' for those systems, which Qniform will turn into journal entries based on rules that
+                       you create."]
+         [:p.tutorial "Let's set up our first System and Event."]]
         [:hr]
-        [:header [:h2 "Upstream Systems"]
-         [:p (if (empty? @dummy-upstream-systems)
-               "Click the 'Add New System' button."
-               "Great. Now click on the system to select it.")]]
+        [:header [:h2 "Upstream Systems"]]
+        (if (empty? @dummy-upstream-systems)
+          [:div [:p.tutorial
+                 "The first thing a Company does is usually to issue some Equity.
+                  So we'll set up a hypothetical upstream system for corporate actions, 
+                  which will be sending you information about equity issuance.
+                  "]
+           [:p.tutorial "(Don't worry if you don't have a system that does this, 
+                  Qniform will work fine)"]
+           [:p.tutorial "Click the 'Add New System' button."]]
+          [:p.tutorial "Great. Now click on the system to select it."])
+
         [systems-summary-component dummy-upstream-systems]]])))
 
 (defn app []

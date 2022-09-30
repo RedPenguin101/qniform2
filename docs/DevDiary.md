@@ -305,7 +305,7 @@ This is the most flexible.
 Say the above event comes in: the event definition would have some logic to decide how to assign the event to a particular GL.
 
 ## 30th September
-
+### Basic system setup
 Time to do upstream system set up.
 Start of very simple: A system with a name and description, and show it with a card.
 
@@ -333,3 +333,14 @@ to
 ```
 
 To start I put in functionality to select a system: you click it and the others, if any, are hidden, and the selected one spans the screen.
+
+### Tutorials
+I want the 'try' functionality to act like a tutorial, guiding the user through the process.
+
+First, making the 'tutorial' text a bit more distinguised from 'normal' text. I just made it Blue and Italic.
+
+I also put some 'reactivity' in there.
+For example, before the user has set up a new system, they are shown the "Add new system by..." text.
+But after a system is created, they are told to select the system by clicking it instead.
+
+I think this will need to be expanded a lot, to the extent of having some global state tracking the users progress through the tutorial.

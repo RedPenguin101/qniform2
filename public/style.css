@@ -15,6 +15,13 @@ aside.hidden {
   display: none;
 }
 
+/* Tutorial */
+
+p.tutorial {
+  color: blue;
+  font-style: italic;
+}
+
 /* Navbar */
 
 nav {
