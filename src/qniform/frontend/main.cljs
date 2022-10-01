@@ -6,6 +6,13 @@
             [qniform.frontend.rules :refer [rules get-schema get-xform]]
             [clojure.string :as str]))
 
+;; utils
+
+(defn acceptable-name [string]
+  (keyword (str/lower-case (str/replace string #" " "-"))))
+
+;; global state
+
 (defonce active-page (r/atom :try))
 (def selected-rule (r/atom :share-issue))
 (def trial-balance (r/atom nil))
@@ -186,15 +193,52 @@
   (r/atom #_{:corp-act {:name "CorpAction", :description "A system for manageing corporate actions"}}
    {}))
 
+(defn event->spec [event-data]
+  (let [event-row-types {"Text" :string "Integer" :int "Currency" :double}]
+    (conj (mapv #(vector (acceptable-name (first %))
+                         (event-row-types (second %)))
+                (remove empty? event-data))
+          [:comment :string])))
+
+(defn new-event-component [system-name show-atom]
+  (let [event-name (r/atom "")
+        event-data (r/atom [[] [] [] [] [] [] [] []])
+        types ["<Select>" "Text" "Integer" "Currency"]
+        num-rows (r/atom 1)]
+    (fn []
+      [:form
+       #_[:p.debug (pr-str @event-name) ": " (pr-str @event-data)]
+       #_[:p.debug (pr-str (event->spec @event-data))]
+       [:label "Event Name"]
+       [:input {:type :text :placeholder "Event Name"
+                :on-change #(reset! event-name (-> % .-target .-value))}]
+       [:table
+        (for [row-num (range 0 @num-rows)]
+          [:tr
+           [:td [:input {:type :text :placeholder "field name"
+                         :on-change #(swap! event-data assoc-in [row-num 0] (-> % .-target .-value))}]]
+           [:td [:select
+                 {:on-change #(swap! event-data assoc-in [row-num 1] (-> % .-target .-value))}
+                 (for [t types]
+                   [:option t])]]
+           [:td [:button.small {:on-click #(do (.preventDefault %) (swap! num-rows inc))}
+                 "new row"]]])]
+       [:button {:on-click #(do (.preventDefault %)
+
+                                (swap! dummy-upstream-systems assoc-in [system-name :events (acceptable-name @event-name)]
+                                       (into [:map [:event-id (acceptable-name @event-name)]] (event->spec @event-data)))
+                                (reset! show-atom false))}
+        "save"]])))
+
 (defn systems-summary-component []
   (let [new-system-form-open (r/atom false)
         new-system-data (r/atom {})
-        selected-system (r/atom nil)]
+        selected-system (r/atom nil)
+        new-event-form (r/atom true)]
     (fn []
       [:div
        ;; existing systems
        [:section
-
         #_[:p.debug
            "selected: " (pr-str @selected-system) " "
            (pr-str @dummy-upstream-systems)]
@@ -212,8 +256,15 @@
                [:a {:on-click #(do (.stopPropagation %)
                                    (reset! selected-system nil))} "x"])]
             [:p (:description system)]
-            [:p [:small
-                 "Events: " (or (count (:events system)) "0")]]]))]
+            (if (not= sid @selected-system)
+              [:p [:small
+                   "Events: " (or (count (:events system)) "0")]]
+              [:div
+               (when @new-event-form
+                 [new-event-component @selected-system new-event-form])
+               [:button
+                {:on-click #(swap! new-event-form not)}
+                "New event"]])]))]
 
        ;; new system
        (if-not @new-system-form-open

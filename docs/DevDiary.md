@@ -348,3 +348,9 @@ I think this will need to be expanded a lot, to the extent of having some global
 ...
 
 I did a bit of that, seems to work well.
+
+## 1st October
+
+Setting up events.
+VERY ugly right now, and the functionality is a bit off (for example, the way you can add as many new rows as you like.)
+But it works OK.

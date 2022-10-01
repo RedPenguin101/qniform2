@@ -15,6 +15,11 @@ aside.hidden {
   display: none;
 }
 
+button.small {
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
 /* Tutorial */
 
 p.tutorial {
