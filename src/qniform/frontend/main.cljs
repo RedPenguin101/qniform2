@@ -183,7 +183,7 @@
         [:td (two-dp (js/parseFloat cr))]])]))
 
 (def dummy-upstream-systems
-  (r/atom #_{:test {:name "Test", :description "test description"}}
+  (r/atom #_{:corp-act {:name "CorpAction", :description "A system for manageing corporate actions"}}
    {}))
 
 (defn systems-summary-component []
