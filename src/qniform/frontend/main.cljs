@@ -72,7 +72,9 @@
 (def trial-balance (r/atom nil))
 
 (def dummy-upstream-systems
-  (r/atom #_{:corp-act {:name "CorpAction", :description "A system for manageing corporate actions"}}
+  (r/atom
+   {:corp-act {:name "CorpAction", :description "A system for managing corporate actions",
+               :events {:share-issue [:map [:event-id :share-issue] [:shares :int] [:price-per-share :double] [:comment :string]]}}}
    {}))
 
 ;; API calls
@@ -233,7 +235,6 @@
            [:td [:button.small {:on-click #(do (.preventDefault %) (swap! num-rows inc))}
                  "new row"]]])]
        [:button {:on-click #(do (.preventDefault %)
-
                                 (swap! dummy-upstream-systems assoc-in [system-name :events (acceptable-name @event-name)]
                                        (into [:map [:event-id (acceptable-name @event-name)]] (event->spec @event-data)))
                                 (reset! show-atom false))}
@@ -243,14 +244,14 @@
   (let [new-system-form-open (r/atom false)
         new-system-data (r/atom {})
         selected-system (r/atom nil)
-        new-event-form (r/atom true)]
+        new-event-form (r/atom false)]
     (fn []
       [:div
        ;; existing systems
        [:section
-        #_[:p.debug
-           "selected: " (pr-str @selected-system) " "
-           (pr-str @dummy-upstream-systems)]
+        [:p.debug
+         "selected: " (pr-str @selected-system) " "
+         (pr-str @dummy-upstream-systems)]
         (doall
          (for [[sid system] @dummy-upstream-systems]
            ^{:key sid}
@@ -271,9 +272,10 @@
               [:div
                (when @new-event-form
                  [new-event-component @selected-system new-event-form])
-               [:button
-                {:on-click #(swap! new-event-form not)}
-                "New event"]])]))]
+               [:ul (for [[ename _event] (get-in @dummy-upstream-systems [@selected-system :events])]
+                      [:li ename " | " [:a "view event"] " | " [:a "edit rule"]])
+                [:li [:a {:on-click #(swap! new-event-form not)}
+                      "New event"]]]])]))]
 
        ;; new system
        (if-not @new-system-form-open

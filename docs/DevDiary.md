@@ -354,3 +354,15 @@ I did a bit of that, seems to work well.
 Setting up events.
 VERY ugly right now, and the functionality is a bit off (for example, the way you can add as many new rows as you like.)
 But it works OK.
+
+Need to 
+TODO: tidy up display
+TODO: add validation for events
+TODO: have cancel button. 
+
+Next: Actually display the events (probably change button to link too.)
+
+I just put them in a list, with 'view event' and 'edit rule' links.
+A table might be better, but this is good enough for now.
+
+Next up is viewing events and inputing rules.
