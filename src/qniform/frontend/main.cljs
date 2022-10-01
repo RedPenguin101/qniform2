@@ -11,11 +11,52 @@
 (defn acceptable-name [string]
   (keyword (str/lower-case (str/replace string #" " "-"))))
 
-;; global state
+(defn num->2dp-str [num]
+  (.toLocaleString num "en-UK"
+                   (clj->js {"maximumFractionDigits" 2,
+                             "minimumFractionDigits" 2})))
 
-(defonce active-page (r/atom :try))
-(def selected-rule (r/atom :share-issue))
-(def trial-balance (r/atom nil))
+;; translating from/to Malli specs
+
+(defn type-display
+  "Given clojure data describing a type 
+   (in a loosely the Malli sense)
+   will convert that to a word that's printable to the browser"
+  [typ]
+  (cond
+    (string? typ) typ
+    (symbol? typ) (name typ)
+    (keyword? typ) (name typ)
+    (and (vector? typ) (= :fn (first typ)))
+    (:display (second typ))))
+
+(defn type->html-input [typ]
+  (cond (and (vector? typ) (= :fn (first typ)))
+        (recur (:coercion (second typ)))
+
+        (#{:double :int} typ) "number"
+        :else "text"))
+
+(defn type-coerce [typ value]
+  (cond (and (keyword? typ) (= :string typ))    value
+        (and (keyword? typ) (= :int typ))       (if (empty? value) 0 (js/parseInt value))
+        (and (keyword? typ) (= :double typ))    (if (empty? value) 0 (js/parseFloat value))
+        (and (vector? typ) (= :fn (first typ))) (recur (:coercion (second typ)) value)
+        :else "COERCE FAIL"))
+
+(defn event->spec
+  "Given the data from the event creation form, will turn that
+   into a format that can be used by Malli to create a spec."
+  [event-data]
+  (let [event-row-types {"Text"     :string
+                         "Integer"  :int
+                         "Currency" :double}]
+    (conj (mapv #(vector (acceptable-name (first %))
+                         (event-row-types (second %)))
+                (remove empty? event-data))
+          [:comment :string])))
+
+;; Tutorial state and helper
 
 (def tutorial-status (r/atom #{:at-start}))
 
@@ -24,10 +65,15 @@
     :set-up-first-system
     (-> state (disj :at-start) (conj :created-system))))
 
-(defn two-dp [num]
-  (.toLocaleString num "en-UK"
-                   (clj->js {"maximumFractionDigits" 2,
-                             "minimumFractionDigits" 2})))
+;; global state
+
+(defonce active-page (r/atom :try))
+(def selected-rule (r/atom :share-issue)) ;; doesn't need to be global
+(def trial-balance (r/atom nil))
+
+(def dummy-upstream-systems
+  (r/atom #_{:corp-act {:name "CorpAction", :description "A system for manageing corporate actions"}}
+   {}))
 
 ;; API calls
 (defn get-rules [d]
@@ -41,32 +87,6 @@
     {:handler #(reset! d %)
      :error-handler (fn [{:keys [status status-text]}]
                       (js/console.log status status-text))}))
-
-(defn type-display [typ]
-  (cond
-    (string? typ) typ
-    (symbol? typ) (name typ)
-    (keyword? typ) (name typ)
-    (and (vector? typ) (= :fn (first typ)))
-    (:display (second typ))))
-
-(defn fn-spec? [typ] (and (vector? typ) (= :fn (first typ))))
-(defn fn-spec-coerce [typ] (:coercion (second typ)))
-
-(defn type->html-input [typ]
-  (cond (fn-spec? typ) (recur (fn-spec-coerce typ))
-        (#{:double :int} typ) "number"
-        :else "text"))
-
-(defn type-coerce [typ value]
-  (if (keyword? typ)
-    (cond (= :string typ) value
-          (= :int typ) (if (empty? value) 0 (js/parseInt value))
-          (= :double typ) (if (empty? value) 0 (js/parseFloat value)))
-    (cond
-      (fn-spec? typ) (type-coerce (fn-spec-coerce typ) value)
-
-      :else "COERCE FAIL")))
 
 ;; Components
 
@@ -186,19 +206,8 @@
      (for [[row-name [dr cr]] tb]
        ^{:key row-name}
        [:tr [:td row-name]
-        [:td (two-dp (js/parseFloat dr))]
-        [:td (two-dp (js/parseFloat cr))]])]))
-
-(def dummy-upstream-systems
-  (r/atom #_{:corp-act {:name "CorpAction", :description "A system for manageing corporate actions"}}
-   {}))
-
-(defn event->spec [event-data]
-  (let [event-row-types {"Text" :string "Integer" :int "Currency" :double}]
-    (conj (mapv #(vector (acceptable-name (first %))
-                         (event-row-types (second %)))
-                (remove empty? event-data))
-          [:comment :string])))
+        [:td (num->2dp-str (js/parseFloat dr))]
+        [:td (num->2dp-str (js/parseFloat cr))]])]))
 
 (defn new-event-component [system-name show-atom]
   (let [event-name (r/atom "")
